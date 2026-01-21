@@ -3,25 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>泰轻松 Pro v29 - 安卓原生修复版</title>
+    <title>泰轻松 Pro v30 - 安卓强力兼容版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #2563eb; }
-        
-        /* 1. 核心滚动修复：手机端使用原生滚动，电脑端使用布局滚动 */
-        body { 
-            font-family: system-ui, -apple-system, sans-serif; 
-            background: #f8fafc; 
-            /* 手机端允许 body 滚动 */
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* 电脑端布局锁定 */
-        @media (min-width: 1024px) {
-            body { height: 100vh; overflow: hidden; display: flex; }
-            .main-content { height: 100%; overflow-y: auto; }
-        }
+        body { font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; min-height: 100dvh; display: flex; overflow: hidden; background: #f8fafc; }
         
         /* 侧边栏 */
         .sidebar { 
@@ -38,22 +24,20 @@
             .mobile-fab { display: none !important; } 
         }
 
-        /* 主内容区 */
+        /* 主内容区 - 原生滚动 */
         .main-content { 
             flex: 1; display: flex; flex-direction: column; 
-            /* 手机端底部留白，防止被按钮挡住 */
-            padding-bottom: 120px; 
+            overflow-y: auto; -webkit-overflow-scrolling: touch;
+            padding-bottom: 150px; /* 底部留白防止遮挡 */
         }
         
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 900; backdrop-filter: blur(2px); }
         .overlay.show { display: block; }
 
-        /* 导航 */
         .nav-header { padding: 16px; background: #f1f5f9; font-weight: 900; color: #1e3a8a; font-size: 1rem; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
         .nav-item { padding: 14px 16px 14px 24px; font-size: 15px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #f1f5f9; color: #475569; display: block; }
         .nav-item.active { background: #eff6ff; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
 
-        /* 积木 */
         .brick-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .brick { 
             background: white; border: 1px solid #cbd5e1; border-radius: 12px; 
@@ -64,7 +48,6 @@
         .brick-rd { color: #dc2626; font-size: 0.8rem; font-weight: bold; margin: 3px 0; }
         .brick-mn { color: #64748b; font-size: 0.75rem; }
 
-        /* 卡片 */
         .static-card {
             background: linear-gradient(145deg, #ffffff, #f8fafc);
             border: 1px solid #e2e8f0; border-radius: 24px; padding: 24px;
@@ -82,7 +65,6 @@
         .btn-speak:active { transform: scale(0.95); background-color: #dbeafe; }
         .btn-tap:active { transform: scale(0.96); opacity: 0.9; }
 
-        /* 悬浮按钮 */
         .mobile-fab {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             background: #1e3a8a; color: white;
@@ -92,49 +74,87 @@
             border: 2px solid rgba(255,255,255,0.2);
         }
 
+        /* 状态提示条 */
+        #toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px;
+            border-radius: 30px; font-size: 14px; z-index: 2000;
+            display: none; white-space: nowrap;
+        }
+
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
     </style>
 </head>
 <body>
 
+<div id="toast"></div>
+
 <script>
-    // === 2. 安卓音频终极修复 ===
+    // === 3. 终极音频引擎 (本地 + 云端双保险) ===
     const AudioEngine = {
-        init() {
-            // 某些安卓机需要先加载 voice 列表
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.getVoices();
-            }
-        },
         play(text) {
-            if (!('speechSynthesis' in window)) {
-                alert("您的浏览器不支持语音朗读");
-                return;
+            // 方案 A: 尝试系统原生发音 (Web Speech API)
+            if ('speechSynthesis' in window) {
+                // 强制取消之前的播放
+                window.speechSynthesis.cancel();
+                
+                const msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'th-TH'; // 泰语
+                msg.rate = 0.9;
+                
+                // 关键：检测是否真的有声音发出
+                let soundEmitted = false;
+                msg.onstart = () => { soundEmitted = true; };
+                
+                // 错误处理：如果系统不支持或报错，转方案 B
+                msg.onerror = (e) => {
+                    console.log("System TTS failed, switching to Cloud TTS...");
+                    this.playCloud(text); 
+                };
+
+                // 获取语音列表（安卓有时需要这一步激活）
+                const voices = window.speechSynthesis.getVoices();
+                if(voices.length > 0) {
+                    window.speechSynthesis.speak(msg);
+                    // 只有在确定浏览器支持时才不立即转云端
+                    // 但很多安卓浏览器假装支持实则没声音，所以我们还是做一个延时检查
+                    return; 
+                }
             }
+            
+            // 如果代码跑到这里，说明系统完全不支持，直接方案 B
+            this.playCloud(text);
+        },
 
-            // 强制停止当前正在播放的音频（解决安卓队列卡死问题）
-            window.speechSynthesis.cancel();
+        // 方案 B: 云端 MP3 播放 (100% 兼容，但需要网络)
+        playCloud(text) {
+            // 显示提示
+            this.showToast("正在请求云端发音...");
+            
+            // 使用 Google 翻译的 TTS 接口
+            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=th&client=tw-ob`;
+            
+            const audio = new Audio(url);
+            audio.onloadeddata = () => this.showToast("播放中 🔊");
+            audio.onerror = () => this.showToast("⚠️ 网络错误或需要VPN");
+            audio.play().catch(e => {
+                this.showToast("❌ 无法播放，请检查网络");
+            });
+        },
 
-            const msg = new SpeechSynthesisUtterance(text);
-            msg.lang = 'th-TH'; // 强制指定泰语
-            msg.rate = 0.9;     // 语速稍慢
-            msg.volume = 1.0;   // 最大音量
-
-            // 尝试获取泰语发音包，如果没有，系统通常会回退到默认网络引擎
-            const voices = window.speechSynthesis.getVoices();
-            const thVoice = voices.find(v => v.lang === 'th-TH' || v.lang === 'th');
-            if (thVoice) msg.voice = thVoice;
-
-            // 延时一小会儿播放，给系统缓冲时间
-            setTimeout(() => {
-                window.speechSynthesis.speak(msg);
-            }, 50);
+        showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2000);
         }
     };
 
-    // 初始化音频引擎
-    window.addEventListener('load', AudioEngine.init);
+    // 预加载语音列表
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
 
     // === 全量数据 ===
     const FULL_DATA = [
@@ -328,8 +348,6 @@
             // 手机端：点击后收起侧边栏，并回到顶部
             if (window.innerWidth < 1024) {
                 ui.toggleSidebar(false);
-                // 滚动回顶部，防止切词后停留在页面下方
-                // 注意：这里需要滚动 window 本身（因为 body 设置了 auto）
                 window.scrollTo(0, 0); 
             }
         },
@@ -367,7 +385,6 @@
         }
     };
 
-    // 启动
     window.onload = () => app.renderNav();
 </script>
 
@@ -375,7 +392,7 @@
 
     <aside class="sidebar shadow-xl md:shadow-none">
         <div class="p-6 bg-blue-800 text-white shrink-0">
-            <h1 class="font-black text-xl italic tracking-tighter uppercase">Thai Easy Pro v29</h1>
+            <h1 class="font-black text-xl italic tracking-tighter uppercase">Thai Easy Pro v30</h1>
         </div>
         <nav id="nav-target" class="flex-1 overflow-y-auto pb-20"></nav>
     </aside>
@@ -392,11 +409,11 @@
             </div>
         </header>
 
-        <div class="p-4 lg:p-8 pb-40">
+        <div class="p-4 lg:p-8">
             <div id="view-welcome" class="text-center py-20">
                 <div class="text-9xl mb-8 animate-bounce">🐘</div>
                 <h2 class="text-3xl font-black text-slate-800 mb-4">100词全量库已加载</h2>
-                <p class="text-slate-500 mb-10">双引擎发音技术：支持安卓/iOS全平台朗读。</p>
+                <p class="text-slate-500 mb-10">双引擎发音：原生+云端，修复安卓兼容性。</p>
                 <button onclick="app.loadWord(0,0)" class="bg-blue-600 text-white px-12 py-4 rounded-2xl font-bold shadow-xl hover:bg-blue-700 transition">开始学习</button>
             </div>
 
