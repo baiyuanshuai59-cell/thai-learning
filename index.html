@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
-    <title>泰轻松 Pro v38 - 绿色通道版</title>
+    <title>泰轻松 Pro v40 - 搜狗救火版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #2563eb; }
         
-        /* === 基础设置 === */
+        /* === 1. 滚动与布局修复 (沿用之前成功的方案) === */
         html { height: auto; min-height: 100%; }
         body { 
             font-family: system-ui, -apple-system, sans-serif; 
@@ -20,7 +20,6 @@
             display: flex; flex-direction: column;
         }
 
-        /* === 电脑端布局 === */
         @media (min-width: 1024px) {
             body { height: 100vh; overflow: hidden; flex-direction: row; }
             .sidebar { position: relative; transform: none; width: 300px; height: 100%; box-shadow: none; border-right: 1px solid #e2e8f0;}
@@ -28,7 +27,6 @@
             .mobile-fab { display: none !important; }
         }
         
-        /* === 手机端侧边栏 === */
         .sidebar { 
             width: 85%; max-width: 320px; background: white; 
             display: flex; flex-direction: column; shrink-0; 
@@ -43,13 +41,10 @@
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1500; backdrop-filter: blur(2px); }
         .overlay.show { display: block; }
 
-        /* === 内容区 === */
         .main-content { flex: 1; width: 100%; padding-bottom: 160px; }
 
-        /* === 组件样式 === */
         .nav-header { padding: 16px; background: #f1f5f9; font-weight: 900; color: #1e3a8a; font-size: 1rem; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
         .nav-item { padding: 14px 20px; font-size: 15px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #f1f5f9; color: #475569; display: block; background: #fff; }
-        .nav-item:active { background: #f8fafc; }
         .nav-item.active { background: #eff6ff; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
 
         .static-card {
@@ -75,8 +70,8 @@
 
         #toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.85); color: white; padding: 8px 20px;
-            border-radius: 50px; font-size: 13px; z-index: 3000;
+            background: rgba(0,0,0,0.85); color: white; padding: 10px 24px;
+            border-radius: 50px; font-size: 14px; z-index: 3000;
             display: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
     </style>
@@ -84,13 +79,13 @@
 <body>
 
 <div id="toast"></div>
-<audio id="global-player" style="display:none;"></audio>
+<audio id="global-player" style="display:none;" controls playsinline webkit-playsinline></audio>
 
 <div id="overlay" class="overlay" onclick="ui.toggleSidebar()"></div>
 <aside class="sidebar">
     <div class="p-6 bg-blue-800 text-white shrink-0">
-        <h1 class="font-black text-xl tracking-tight uppercase">Thai Easy v38</h1>
-        <p class="text-xs text-blue-200 mt-1">绿色通道版</p>
+        <h1 class="font-black text-xl tracking-tight uppercase">Thai Easy v40</h1>
+        <p class="text-xs text-blue-200 mt-1">搜狗超强兼容版</p>
     </div>
     <nav id="nav-target" class="flex-1 overflow-y-auto pb-10"></nav>
 </aside>
@@ -109,9 +104,9 @@
 
     <div class="p-4 lg:p-8" id="content-area">
         <div id="view-welcome" class="text-center py-12">
-            <div class="text-8xl mb-4">🐘</div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">泰轻松 Pro v38</h2>
-            <p class="text-slate-500 text-sm mb-8">线路已切换至：百度翻译网页通道 (Th)</p>
+            <div class="text-8xl mb-4">🔥</div>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">已切换搜狗线路</h2>
+            <p class="text-slate-500 text-sm mb-8">专治安卓没声音、乱码音</p>
             <button onclick="app.loadWord(0,0)" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg active:scale-95 transition">开始学习</button>
         </div>
 
@@ -150,35 +145,44 @@
 </main>
 
 <script>
+    // === 3. 终极音频引擎 (搜狗 Sogou) ===
+    // 搜狗的 TTS 接口目前在国内非常稳定，且支持泰语 (lang=th)
     const AudioEngine = {
         play(text) {
             const player = document.getElementById('global-player');
-            this.showToast("正在请求...");
+            this.showToast("请求音频中...");
 
-            // 预热：让安卓浏览器知道我们要放声音了
+            // 预热：先播放一个空操作，激活安卓音频通道，防止浏览器休眠
             player.play().catch(() => {});
 
-            // 线路1：百度翻译网页接口 (国内速度最快，支持泰语，需 no-referrer)
-            const baiduUrl = `https://fanyi.baidu.com/gettts?lan=th&text=${encodeURIComponent(text)}&spd=3&source=web`;
+            // 线路1：搜狗翻译 (Sogou)
+            // lang=th 代表泰语, from=translateweb 是必须参数
+            const sogouUrl = `https://fanyi.sogou.com/reventondc/synthesis?text=${encodeURIComponent(text)}&lang=th&speed=1&from=translateweb`;
             
-            // 线路2：微软 Bing 接口 (备用)
-            const bingUrl = `https://www.bing.com/tfettts?isVertical=1&isAudio=1&text=${encodeURIComponent(text)}&setLang=th-TH`;
+            // 线路2：微软 Bing 中国 (备用)
+            const bingUrl = `https://cn.bing.com/tfettts?isVertical=1&isAudio=1&text=${encodeURIComponent(text)}&setLang=th-TH`;
 
-            // 尝试播放
-            player.src = baiduUrl;
+            // 优先使用搜狗
+            player.src = sogouUrl;
             
             player.oncanplay = () => {
-                this.showToast("🔊 播放中 (百度线路)");
-                player.play();
+                this.showToast("🔊 正在播放 (搜狗)");
+                const playPromise = player.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log("Auto-play prevented");
+                        this.showToast("⚠️ 请再次点击以播放");
+                    });
+                }
             };
             
             player.onerror = () => {
-                console.log("Baidu Web failed, trying Bing...");
+                console.log("Sogou failed, trying Bing CN...");
                 this.showToast("切换线路...");
-                // 失败后切到 Bing
+                // 搜狗失败切微软
                 player.src = bingUrl;
                 player.play().catch(e => {
-                    this.showToast("❌ 无法连接音频服务器");
+                    this.showToast("❌ 无法连接，请检查网络");
                 });
             };
         },
@@ -193,6 +197,7 @@
         }
     };
 
+    // === 全量数据 ===
     const FULL_DATA = [
         {
             name: "第一章：社交生存", icon: "🤝",
