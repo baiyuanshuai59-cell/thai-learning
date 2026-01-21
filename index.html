@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>泰轻松 Pro v25 - 发音精准矫正版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --primary: #2563eb; }
+        body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display: flex; overflow: hidden; background: #f8fafc; }
+        
+        /* 侧边栏 */
+        .sidebar { width: 300px; background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; shrink-0; transition: transform 0.3s ease; z-index: 50; }
+        .main-content { flex: 1; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; }
+        
+        @media (max-width: 1024px) {
+            .sidebar { position: fixed; transform: translateX(-100%); height: 100%; width: 85%; }
+            .sidebar.open { transform: translateX(0); }
+            .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40; }
+            .overlay.show { display: block; }
+        }
+
+        /* 导航 */
+        .nav-header { padding: 12px 16px; background: #f1f5f9; font-weight: 900; color: #1e3a8a; font-size: 0.95rem; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
+        .nav-item { padding: 12px 16px 12px 24px; font-size: 14px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #f8fafc; color: #475569; transition: all 0.2s; display: block; }
+        .nav-item:hover { background: #f8fafc; color: var(--primary); padding-left: 28px; }
+        .nav-item.active { background: #eff6ff; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
+
+        /* 实战积木 (三层) */
+        .brick-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .brick { 
+            background: white; border: 1px solid #cbd5e1; border-radius: 10px; 
+            padding: 8px 6px; text-align: center; flex: 1; min-width: 65px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03); 
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .brick-th { color: #1e40af; font-weight: 800; font-size: 1rem; line-height: 1.2; }
+        .brick-rd { color: #dc2626; font-size: 0.8rem; font-weight: bold; margin: 3px 0; }
+        .brick-mn { color: #64748b; font-size: 0.7rem; }
+
+        /* 左侧静态卡片 */
+        .static-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border: 1px solid #e2e8f0; border-radius: 24px; padding: 30px 20px;
+            text-align: center; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08);
+            width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 10px;
+        }
+        .card-thai { font-size: 3.5rem; font-weight: 900; color: #1e3a8a; letter-spacing: -1px; line-height: 1.1; }
+        .card-roma { font-size: 1.1rem; color: #94a3b8; font-style: italic; margin-bottom: 5px; }
+        .card-mean { font-size: 2rem; font-weight: 800; color: #0f172a; margin: 5px 0; }
+        
+        .mnemonic-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 16px; padding: 15px; margin-top: 10px; }
+        .mnem-title { font-size: 0.75rem; color: #c2410c; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .mnem-word { font-size: 2.2rem; font-weight: 900; color: #ea580c; margin: 5px 0; letter-spacing: 2px; }
+        .mnem-desc { font-size: 0.95rem; color: #475569; font-style: italic; line-height: 1.5; }
+
+        .btn-speak { transition: transform 0.1s; }
+        .btn-speak:active { transform: scale(0.95); }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<script>
+    // === 100% 完整全量数据 (5板块 x 20词) - 发音精修版 ===
+    const FULL_DATA = [
+        {
+            name: "第一章：社交生存 (20词)", icon: "🤝",
+            words: [
+                { t: "สวัสดี", r: "Sa-wa-dee", m: "萨-瓦-迪", mean: "你好", desc: "每天(萨)哇一声，(瓦)片落地，(迪)确有礼貌。", sentences: [{zh:"你好，很高兴认识你", bricks:[{t:"สวัสดี",r:"萨瓦迪",m:"你好"},{t:"ยินดี",r:"银迪",m:"高兴"},{t:"ที่ได้",r:"提袋",m:"能"},{t:"รู้จัก",r:"卢扎",m:"认识"}]}, {zh:"老师好", bricks:[{t:"สวัสดี",r:"萨瓦迪",m:"你好"},{t:"คุณครู",r:"坤哭",m:"老师"}]}, {zh:"大家好", bricks:[{t:"สวัสดี",r:"萨瓦迪",m:"你好"},{t:"ทุกคน",r:"土坤",m:"大家"}]}] },
+                { t: "ขอบคุณ", r: "Khop-khun", m: "靠-坤", mean: "谢谢", desc: "有了依(靠)，就要感谢乾(坤)。", sentences: [{zh:"非常感谢", bricks:[{t:"ขอบคุณ",r:"靠坤",m:"谢谢"},{t:"มาก",r:"马克",m:"非常"}]}, {zh:"谢谢你的礼物", bricks:[{t:"ขอบคุณ",r:"靠坤",m:"谢谢"},{t:"สำหรับ",r:"萨拉",m:"对于"},{t:"ของขวัญ",r:"空款",m:"礼物"}]}, {zh:"谢谢帮忙", bricks:[{t:"ขอบคุณ",r:"靠坤",m:"谢谢"},{t:"ที่ช่วย",r:"提吹",m:"帮忙"}]}] },
+                { t: "ขอโทษ", r: "Khor-tot", m: "考-透", mean: "对不起", desc: "(考)试作弊被看(透)了，说对不起。", sentences: [{zh:"对不起，我来晚了", bricks:[{t:"ขอโทษ",r:"考透",m:"对不起"},{t:"ที่",r:"提",m:"因"},{t:"มาสาย",r:"马赛",m:"迟到"}]}, {zh:"对不起，我忘了", bricks:[{t:"ขอโทษ",r:"考透",m:"对不起"},{t:"ฉัน",r:"蝉",m:"我"},{t:"ลืม",r:"棱",m:"忘"}]}, {zh:"借过一下", bricks:[{t:"ขอโทษ",r:"考透",m:"借过"},{t:"ครับ",r:"卡",m:"语气"}]}] },
+                { t: "ไม่เป็นไร", r: "Mai-pen-rai", m: "卖-奔-莱", mean: "没关系", desc: "(卖)完东西就(奔)跑回(莱)，没关系。", sentences: [{zh:"没关系，小事", bricks:[{t:"ไม่เป็นไร",r:"卖奔莱",m:"没关系"},{t:"เรื่องเล็ก",r:"勒来",m:"小事"}]}, {zh:"不用担心", bricks:[{t:"ไม่ต้อง",r:"卖东",m:"不用"},{t:"ห่วง",r:"晃",m:"担心"}]}, {zh:"真的没关系", bricks:[{t:"ไม่เป็นไร",r:"卖奔莱",m:"没关系"},{t:"จริงๆ",r:"晶晶",m:"真的"}]}] },
+                { t: "ใช่", r: "Chai", m: "才", mean: "是/对", desc: "这(才)是对的。", sentences: [{zh:"是的，我是泰国人", bricks:[{t:"ใช่",r:"才",m:"是"},{t:"ฉัน",r:"蝉",m:"我"},{t:"เป็น",r:"奔",m:"是"},{t:"คนไทย",r:"坤泰",m:"泰国人"}]}, {zh:"对，正确", bricks:[{t:"ใช่",r:"才",m:"对"},{t:"ถูกต้อง",r:"土当",m:"正确"}]}, {zh:"是的，没错", bricks:[{t:"ใช่",r:"才",m:"是"},{t:"แล้ว",r:"聊",m:"了"}]}] },
+                { t: "ไม่ใช่", r: "Mai-chai", m: "卖-才", mean: "不是", desc: "我(卖)不出(才)华，我不是天才。", sentences: [{zh:"不是，我不知道", bricks:[{t:"ไม่ใช่",r:"卖才",m:"不是"},{t:"ฉัน",r:"蝉",m:"我"},{t:"ไม่รู้",r:"卖路",m:"不知"}]}, {zh:"这不是我的", bricks:[{t:"นี่",r:"尼",m:"这"},{t:"ไม่ใช่",r:"卖才",m:"不是"},{t:"ของฉัน",r:"孔蝉",m:"我的"}]}, {zh:"不是这样的", bricks:[{t:"มัน",r:"满",m:"它"},{t:"ไม่ใช่",r:"卖才",m:"不是"},{t:"แบบนี้",r:"别尼",m:"这样"}]}] },
+                { t: "ลาก่อน", r: "La-gon", m: "拉-棍", mean: "再见", desc: "(拉)着(棍)子去远行，再见。", sentences: [{zh:"再见，明天见", bricks:[{t:"ลาก่อน",r:"拉棍",m:"再见"},{t:"เจอกัน",r:"接干",m:"见"},{t:"พรุ่งนี้",r:"铺尼",m:"明天"}]}, {zh:"先走了", bricks:[{t:"ไปก่อนนะ",r:"拜搞纳",m:"先走了"}]}, {zh:"再见，保重", bricks:[{t:"ลาก่อน",r:"拉棍",m:"再见"},{t:"ดูแลตัวเอง",r:"杜来杜eng",m:"保重"}]}] },
+                { t: "โชคดี", r: "Chok-dee", m: "戳-底", mean: "好运", desc: "一杆(戳)到(底)，运气真好。", sentences: [{zh:"祝你好运", bricks:[{t:"ขอให้",r:"考海",m:"祝愿"},{t:"โชคดี",r:"戳迪",m:"好运"}]}, {zh:"旅途愉快", bricks:[{t:"เดินทาง",r:"等杭",m:"旅行"},{t:"โชคดี",r:"戳迪",m:"好运"}]}, {zh:"考试好运", bricks:[{t:"สอบ",r:"扫",m:"考"},{t:"โชคดี",r:"戳迪",m:"好运"}]}] },
+                { t: "ช่วยด้วย", r: "Chuay-duay", m: "吹-对", mean: "救命/帮忙", desc: "(吹)气(对)了人就活了，救命啊。", sentences: [{zh:"救命啊！", bricks:[{t:"ช่วย",r:"吹",m:"帮"},{t:"ด้วย",r:"对",m:"忙"}]}, {zh:"请帮帮我", bricks:[{t:"ช่วย",r:"吹",m:"帮"},{t:"ฉัน",r:"蝉",m:"我"},{t:"หน่อย",r:"诺",m:"一点"}]}, {zh:"能帮忙吗", bricks:[{t:"ช่วย",r:"吹",m:"帮"},{t:"ได้ไหม",r:"代卖",m:"可吗"}]}] },
+                { t: "ชื่อ", r: "Chue", m: "去", mean: "名字", desc: "(去)起个好名字。", sentences: [{zh:"你叫什么名字？", bricks:[{t:"คุณ",r:"坤",m:"你"},{t:"ชื่อ",r:"去",m:"名"},{t:"อะไร",r:"阿莱",m:"什么"}]}, {zh:"我叫...", bricks:[{t:"ฉัน",r:"蝉",m:"我"},{t:"ชื่อ",r:"去",m:"名"},{t:"...",r:"...",m:"..."}]}, {zh:"名字好听", bricks:[{t:"ชื่อ",r:"去",m:"名"},{t:"เพราะ",r:"坡",m:"好听"}]}] },
+                { t: "ฉัน/ผม", r: "Chan/Phom", m: "蝉/蓬", mean: "我", desc: "女像(蝉)叫，男发(蓬)松。", sentences: [{zh:"我是中国人", bricks:[{t:"ฉัน",r:"蝉",m:"我"},{t:"คนจีน",r:"坤金",m:"中国人"}]}, {zh:"我不吃辣", bricks:[{t:"ผม",r:"蓬",m:"我(男)"},{t:"ไม่กิน",r:"卖金",m:"不吃"},{t:"เผ็ด",r:"撇",m:"辣"}]}, {zh:"我喜欢泰国", bricks:[{t:"ฉัน",r:"蝉",m:"我"},{t:"ชอบ",r:"戳",m:"喜"},{t:"ไทย",r:"泰",m:"泰"}]}] },
+                { t: "คุณ", r: "Khun", m: "坤", mean: "你/敬称", desc: "谢广(坤)就是你。", sentences: [{zh:"你要去哪里？", bricks:[{t:"คุณ",r:"坤",m:"你"},{t:"จะไป",r:"甲拜",m:"要去"},{t:"ไหน",r:"乃",m:"哪"}]}, {zh:"你是谁？", bricks:[{t:"คุณ",r:"坤",m:"你"},{t:"เป็น",r:"奔",m:"是"},{t:"ใคร",r:"开",m:"谁"}]}, {zh:"这是你的", bricks:[{t:"ของ",r:"孔",m:"物"},{t:"คุณ",r:"坤",m:"你"}]}] },
+                { t: "ที่ไหน", r: "Tee-nai", m: "提-奶", mean: "哪里", desc: "(提)着牛(奶)要去哪里？", sentences: [{zh:"厕所在哪里？", bricks:[{t:"ห้องน้ำ",r:"轰南",m:"厕所"},{t:"อยู่ที่ไหน",r:"有提奶",m:"在哪"}]}, {zh:"你在哪里？", bricks:[{t:"คุณ",r:"坤",m:"你"},{t:"อยู่",r:"有",m:"在"},{t:"ที่ไหน",r:"提奶",m:"哪"}]}, {zh:"去哪里吃？", bricks:[{t:"กิน",r:"金",m:"吃"},{t:"ที่ไหน",r:"提奶",m:"哪"}]}] },
+                { t: "เมื่อไหร่", r: "Muea-rai", m: "灭-莱", mean: "什么时候", desc: "(灭)绝师太(来)了是什么时候？", sentences: [{zh:"什么时候去？", bricks:[{t:"ไป",r:"拜",m:"去"},{t:"เมื่อไหร่",r:"灭莱",m:"何时"}]}, {zh:"什么时候回来？", bricks:[{t:"กลับ",r:"格拉",m:"回"},{t:"เมื่อไหร่",r:"灭莱",m:"何时"}]}, {zh:"什么时候开门？", bricks:[{t:"เปิด",r:"伯",m:"开"},{t:"เมื่อไหร่",r:"灭莱",m:"何时"}]}] },
+                { t: "ใคร", r: "Krai", m: "开", mean: "谁", desc: "(开)门的人是谁？", sentences: [{zh:"他是谁？", bricks:[{t:"เขา",r:"考",m:"他"},{t:"เป็น",r:"奔",m:"是"},{t:"ใคร",r:"开",m:"谁"}]}, {zh:"谁在那儿？", bricks:[{t:"ใคร",r:"开",m:"谁"},{t:"อยู่",r:"有",m:"在"},{t:"นั่น",r:"难",m:"那"}]}, {zh:"去找谁？", bricks:[{t:"หา",r:"哈",m:"找"},{t:"ใคร",r:"开",m:"谁"}]}] },
+                { t: "ทำไม", r: "Tham-mai", m: "贪-卖", mean: "为什么", desc: "(贪)心(卖)东西，为什么？", sentences: [{zh:"为什么不去？", bricks:[{t:"ทำไม",r:"贪卖",m:"为何"},{t:"ไม่",r:"卖",m:"不"},{t:"ไป",r:"拜",m:"去"}]}, {zh:"为什么贵？", bricks:[{t:"ทำไม",r:"贪卖",m:"为何"},{t:"แพง",r:"配昂",m:"贵"}]}, {zh:"为什么哭？", bricks:[{t:"ร้องไห้",r:"龙海",m:"哭"},{t:"ทำไม",r:"贪卖",m:"为何"}]}] },
+                { t: "เข้าใจ", r: "Kao-jai", m: "靠-斋", mean: "明白/理解", desc: "(靠)吃(斋)才能明白道理。", sentences: [{zh:"我明白了", bricks:[{t:"ฉัน",r:"蝉",m:"我"},{t:"เข้าใจ",r:"靠斋",m:"懂"},{t:"แล้ว",r:"聊",m:"了"}]}, {zh:"不明白", bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"เข้าใจ",r:"靠斋",m:"懂"}]}, {zh:"明白了吗？", bricks:[{t:"เข้าใจ",r:"靠斋",m:"懂"},{t:"ไหม",r:"卖",m:"吗"}]}] },
+                { t: "พูด", r: "Poot", m: "铺", mean: "说", desc: "(铺)开来说。", sentences: [{zh:"你会说泰语吗？", bricks:[{t:"พูด",r:"铺",m:"说"},{t:"ไทย",r:"泰",m:"泰语"},{t:"ได้ไหม",r:"代卖",m:"能吗"}]}, {zh:"请慢点说", bricks:[{t:"พูด",r:"铺",m:"说"},{t:"ช้าๆ",r:"叉叉",m:"慢"}]}, {zh:"别说话", bricks:[{t:"อย่า",r:"雅",m:"别"},{t:"พูด",r:"铺",m:"说"}]}] },
+                { t: "ภาษาไทย", r: "Pasa-Thai", m: "帕-萨-泰", mean: "泰语", desc: "(怕)说(萨)瓦迪(泰)。", sentences: [{zh:"我学泰语", bricks:[{t:"เรียน",r:"连",m:"学"},{t:"ภาษาไทย",r:"帕萨泰",m:"泰语"}]}, {zh:"泰语很难", bricks:[{t:"ภาษาไทย",r:"帕萨泰",m:"泰语"},{t:"ยาก",r:"亚",m:"难"}]}, {zh:"泰语有趣", bricks:[{t:"ภาษาไทย",r:"帕萨泰",m:"泰语"},{t:"สนุก",r:"萨努",m:"有趣"}]}] },
+                { t: "เพื่อน", r: "Puean", m: "盆", mean: "朋友", desc: "好(盆)友。", sentences: [{zh:"他是朋友", bricks:[{t:"เขา",r:"考",m:"他"},{t:"เป็น",r:"奔",m:"是"},{t:"เพื่อน",r:"盆",m:"友"}]}, {zh:"好朋友", bricks:[{t:"เพื่อน",r:"盆",m:"友"},{t:"กัน",r:"干",m:"好"}]}, {zh:"有朋友吗", bricks:[{t:"มี",r:"米",m:"有"},{t:"เพื่อน",r:"盆",m:"友"},{t:"ไหม",r:"卖",m:"吗"}]}] }
+            ]
+        },
+        {
+            name: "第二章：疯狂购物 (20词)", icon: "🛍️",
+            words: [
+                { t: "เท่าไหร่", r: "Tao-rai", m: "掏-莱", mean: "多少钱", desc: "(掏)钱出(莱)买东西。", sentences: [{zh:"这个多少钱？", bricks:[{t:"อันนี้",r:"安尼",m:"这个"},{t:"เท่าไหร่",r:"掏莱",m:"多少钱"}]}, {zh:"一共多少钱？", bricks:[{t:"ทั้งหมด",r:"当莫",m:"全部"},{t:"เท่าไหร่",r:"掏莱",m:"多少钱"}]}, {zh:"那件多少钱？", bricks:[{t:"ตัวนั้น",r:"多难",m:"那件"},{t:"เท่าไหร่",r:"掏莱",m:"多少钱"}]}] },
+                { t: "แพง", r: "Phaeng", m: "配-昂", mean: "贵", desc: "价格不(配)我，(昂)贵。", sentences: [{zh:"太贵了！", bricks:[{t:"แพง",r:"配昂",m:"贵"},{t:"มาก",r:"马克",m:"太"}]}, {zh:"有点贵", bricks:[{t:"แพง",r:"配昂",m:"贵"},{t:"หน่อย",r:"诺",m:"点"}]}, {zh:"不贵", bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"แพง",r:"配昂",m:"贵"}]}] },
+                { t: "ถูก", r: "Took", m: "土", mean: "便宜", desc: "(土)当然便宜。", sentences: [{zh:"很便宜", bricks:[{t:"ถูก",r:"土",m:"便宜"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"便宜点好吗", bricks:[{t:"ถูก",r:"土",m:"便宜"},{t:"หน่อย",r:"诺",m:"点"}]}, {zh:"这也太便宜了", bricks:[{t:"ถูก",r:"土",m:"便宜"},{t:"จัง",r:"将",m:"真"}]}] },
+                { t: "ลด", r: "Lod", m: "洛", mean: "降价/打折", desc: "价格(落)下来。", sentences: [{zh:"可以降价吗？", bricks:[{t:"ลด",r:"洛",m:"降价"},{t:"ได้ไหม",r:"代卖",m:"可吗"}]}, {zh:"有折扣吗？", bricks:[{t:"มี",r:"米",m:"有"},{t:"ส่วนลด",r:"算洛",m:"折扣"}]}, {zh:"再少点", bricks:[{t:"ลด",r:"洛",m:"少"},{t:"อีก",r:"一",m:"再"}]}] },
+                { t: "เอา", r: "Ao", m: "奥", mean: "要", desc: "(奥)运金牌我都要。", sentences: [{zh:"我要这个", bricks:[{t:"เอา",r:"奥",m:"要"},{t:"อันนี้",r:"安尼",m:"这个"}]}, {zh:"要袋子", bricks:[{t:"เอา",r:"奥",m:"要"},{t:"ถุง",r:"桶",m:"袋"}]}, {zh:"你要吗？", bricks:[{t:"เอา",r:"奥",m:"要"},{t:"ไหม",r:"卖",m:"吗"}]}] },
+                { t: "ไม่เอา", r: "Mai-ao", m: "卖-奥", mean: "不要", desc: "(卖)给(奥)特曼，我不要。", sentences: [{zh:"我不要辣", bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"เอา",r:"奥",m:"要"},{t:"เผ็ด",r:"撇",m:"辣"}]}, {zh:"不要袋子", bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"เอา",r:"奥",m:"要"},{t:"ถุง",r:"桶",m:"袋"}]}, {zh:"不要这个", bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"เอา",r:"奥",m:"要"},{t:"อันนี้",r:"安尼",m:"这个"}]}] },
+                { t: "อันนี้", r: "An-nee", m: "安-尼", mean: "这个", desc: "(安妮)喜欢这个。", sentences: [{zh:"这个多少钱", bricks:[{t:"อันนี้",r:"安尼",m:"这个"},{t:"เท่าไหร่",r:"套莱",m:"多少"}]}, {zh:"喜欢这个", bricks:[{t:"ชอบ",r:"戳",m:"喜"},{t:"อันนี้",r:"安尼",m:"这个"}]}, {zh:"我要这个", bricks:[{t:"เอา",r:"奥",m:"要"},{t:"อันนี้",r:"安尼",m:"这个"}]}] },
+                { t: "สี", r: "See", m: "洗", mean: "颜色", desc: "把颜色(洗)掉。", sentences: [{zh:"什么颜色？", bricks:[{t:"สี",r:"洗",m:"色"},{t:"อะไร",r:"阿莱",m:"什么"}]}, {zh:"我要红色", bricks:[{t:"เอา",r:"奥",m:"要"},{t:"สีแดง",r:"洗灯",m:"红"}]}, {zh:"有黑色吗", bricks:[{t:"มี",r:"米",m:"有"},{t:"สีดำ",r:"洗当",m:"黑"}]}] },
+                { t: "ใหญ่", r: "Yai", m: "亚", mean: "大", desc: "(亚)洲很大。", sentences: [{zh:"太大了", bricks:[{t:"ใหญ่",r:"亚",m:"大"},{t:"ไป",r:"拜",m:"太"}]}, {zh:"有大的吗", bricks:[{t:"มี",r:"米",m:"有"},{t:"ใหญ่",r:"亚",m:"大"}]}, {zh:"要大杯", bricks:[{t:"เอา",r:"奥",m:"要"},{t:"แก้ว",r:"盖",m:"杯"},{t:"ใหญ่",r:"亚",m:"大"}]}] },
+                { t: "เล็ก", r: "Lek", m: "来", mean: "小", desc: "(来)个小的。", sentences: [{zh:"太小了", bricks:[{t:"เล็ก",r:"来",m:"小"},{t:"ไป",r:"拜",m:"太"}]}, {zh:"小一点", bricks:[{t:"เล็ก",r:"来",m:"小"},{t:"หน่อย",r:"诺",m:"点"}]}, {zh:"要小份", bricks:[{t:"เอา",r:"奥",m:"要"},{t:"เล็ก",r:"来",m:"小"}]}] },
+                { t: "บาท", r: "Baht", m: "霸", mean: "泰铢", desc: "(霸)占所有泰铢。", sentences: [{zh:"100泰铢", bricks:[{t:"หนึ่งร้อย",r:"能罗",m:"100"},{t:"บาท",r:"霸",m:"铢"}]}, {zh:"几泰铢？", bricks:[{t:"กี่",r:"几",m:"几"},{t:"บาท",r:"霸",m:"铢"}]}, {zh:"50铢", bricks:[{t:"ห้าสิบ",r:"哈习",m:"50"},{t:"บาท",r:"霸",m:"铢"}]}] },
+                { t: "เงินทอน", r: "Ngern-ton", m: "恩-通", mean: "找零", desc: "感(恩)(通)融找钱。", sentences: [{zh:"不用找零", bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"ต้อง",r:"东",m:"用"},{t:"ทอน",r:"通",m:"找"}]}, {zh:"这是找零", bricks:[{t:"นี่",r:"尼",m:"这"},{t:"เงินทอน",r:"恩通",m:"找零"}]}, {zh:"找错了", bricks:[{t:"ทอน",r:"通",m:"找"},{t:"ผิด",r:"皮",m:"错"}]}] },
+                { t: "บัตร", r: "Bat", m: "巴", mean: "卡", desc: "(巴)士卡。", sentences: [{zh:"收信用卡吗？", bricks:[{t:"รับ",r:"拉",m:"收"},{t:"บัตร",r:"巴",m:"卡"}]}, {zh:"刷卡", bricks:[{t:"รูด",r:"录",m:"刷"},{t:"บัตร",r:"巴",m:"卡"}]}, {zh:"不收卡", bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"รับ",r:"拉",m:"收"},{t:"บัตร",r:"巴",m:"卡"}]}] },
+                { t: "ถุง", r: "Tung", m: "桶", mean: "袋子", desc: "像(桶)一样的袋子。", sentences: [{zh:"要袋子吗？", bricks:[{t:"รับ",r:"拉",m:"要"},{t:"ถุง",r:"桶",m:"袋"}]}, {zh:"不要袋子", bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"เอา",r:"奥",m:"要"},{t:"ถุง",r:"桶",m:"袋"}]}, {zh:"我有袋子", bricks:[{t:"มี",r:"米",m:"有"},{t:"ถุง",r:"桶",m:"袋"}]}] },
+                { t: "ลอง", r: "Long", m: "龙", mean: "试", desc: "(龙)去试试水。", sentences: [{zh:"可以试吗？", bricks:[{t:"ลอง",r:"龙",m:"试"},{t:"ได้ไหม",r:"代卖",m:"可吗"}]}, {zh:"试穿", bricks:[{t:"ลอง",r:"龙",m:"试"},{t:"ใส่",r:"赛",m:"穿"}]}, {zh:"试试看", bricks:[{t:"ลอง",r:"龙",m:"试"},{t:"ดู",r:"杜",m:"看"}]}] },
+                { t: "เสื้อ", r: "Seua", m: "色", mean: "衣服", desc: "衣服有很多颜(色)。", sentences: [{zh:"这件衣服", bricks:[{t:"เสื้อ",r:"色",m:"衣"},{t:"ตัวนี้",r:"多尼",m:"这"}]}, {zh:"买衣服", bricks:[{t:"ซื้อ",r:"思",m:"买"},{t:"เสื้อ",r:"色",m:"衣"}]}, {zh:"衣服很美", bricks:[{t:"เสื้อ",r:"色",m:"衣"},{t:"สวย",r:"帅",m:"美"}]}] },
+                { t: "ร้าน", r: "Ran", m: "兰", mean: "店", desc: "(兰)花开在店里。", sentences: [{zh:"饭店", bricks:[{t:"ร้าน",r:"兰",m:"店"},{t:"อาหาร",r:"阿含",m:"饭"}]}, {zh:"咖啡店", bricks:[{t:"ร้าน",r:"兰",m:"店"},{t:"กาแฟ",r:"嘎飞",m:"咖啡"}]}, {zh:"关店了", bricks:[{t:"ร้าน",r:"兰",m:"店"},{t:"ปิด",r:"闭",m:"关"}]}] },
+                { t: "ตลาด", r: "Talad", m: "达-拉", mean: "市场", desc: "到(达)了就(拉)货，是市场。", sentences: [{zh:"去市场", bricks:[{t:"ไป",r:"拜",m:"去"},{t:"ตลาด",r:"达拉",m:"市场"}]}, {zh:"夜市", bricks:[{t:"ตลาด",r:"达拉",m:"市"},{t:"นัด",r:"纳",m:"夜"}]}, {zh:"水上市场", bricks:[{t:"ตลาด",r:"达拉",m:"市"},{t:"น้ำ",r:"南",m:"水"}]}] },
+                { t: "หนึ่ง", r: "Nueng", m: "能", mean: "1", desc: "第一名很有(能)耐。", sentences: [{zh:"一个", bricks:[{t:"หนึ่ง",r:"能",m:"1"},{t:"อัน",r:"安",m:"个"}]}, {zh:"一公斤", bricks:[{t:"หนึ่ง",r:"能",m:"1"},{t:"กิโล",r:"吉罗",m:"kg"}]}, {zh:"一次", bricks:[{t:"หนึ่ง",r:"能",m:"1"},{t:"ครั้ง",r:"康",m:"次"}]}] },
+                { t: "สอง", r: "Song", m: "送", mean: "2", desc: "买一(送)一变两个。", sentences: [{zh:"两个人", bricks:[{t:"สอง",r:"送",m:"2"},{t:"คน",r:"坤",m:"人"}]}, {zh:"两个", bricks:[{t:"สอง",r:"送",m:"2"},{t:"อัน",r:"安",m:"个"}]}, {zh:"两点", bricks:[{t:"สอง",r:"送",m:"2"},{t:"โมง",r:"蒙",m:"点"}]}] }
+            ]
+        },
+        {
+            name: "第三章：吃喝玩乐 (20词)", icon: "🍜",
+            words: [
+                { t: "กิน", r: "Kin", m: "金", mean: "吃", desc: "吞(金)子吃。", sentences: [{zh:"吃饭",bricks:[{t:"กิน",r:"金",m:"吃"},{t:"ข้าว",r:"靠",m:"饭"}]}, {zh:"好吃吗",bricks:[{t:"อร่อย",r:"阿莱",m:"好吃"},{t:"ไหม",r:"卖",m:"吗"}]}, {zh:"吃饱了",bricks:[{t:"อิ่ม",r:"饮",m:"饱"},{t:"แล้ว",r:"聊",m:"了"}]}] },
+                { t: "น้ำ", r: "Nam", m: "南", mean: "水", desc: "(南)水北调。", sentences: [{zh:"喝水",bricks:[{t:"ดื่ม",r:"饮",m:"喝"},{t:"น้ำ",r:"南",m:"水"}]}, {zh:"冰水",bricks:[{t:"น้ำ",r:"南",m:"水"},{t:"แข็ง",r:"肯",m:"冰"}]}, {zh:"要水",bricks:[{t:"เอา",r:"奥",m:"要"},{t:"น้ำ",r:"南",m:"水"}]}] },
+                { t: "หิว", r: "Hiu", m: "休", mean: "饿", desc: "饿得要(休)克。", sentences: [{zh:"饿了吗",bricks:[{t:"หิว",r:"休",m:"饿"},{t:"ไหม",r:"卖",m:"吗"}]}, {zh:"很饿",bricks:[{t:"หิว",r:"休",m:"饿"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"不饿",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"หิว",r:"休",m:"饿"}]}] },
+                { t: "เผ็ด", r: "Pet", m: "撇", mean: "辣", desc: "辣得(撇)嘴。", sentences: [{zh:"不辣",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"เผ็ด",r:"撇",m:"辣"}]}, {zh:"一点点辣",bricks:[{t:"เผ็ด",r:"撇",m:"辣"},{t:"นิดหน่อย",r:"尼诺",m:"一点"}]}, {zh:"不要辣",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"เอา",r:"奥",m:"要"},{t:"เผ็ด",r:"撇",m:"辣"}]}] },
+                { t: "อร่อย", r: "A-roi", m: "阿-莱", mean: "好吃", desc: "(阿)姨(来)做饭真好吃。", sentences: [{zh:"很好吃",bricks:[{t:"อร่อย",r:"阿莱",m:"好吃"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"不好吃",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"อร่อย",r:"阿莱",m:"好吃"}]}, {zh:"真的好吃",bricks:[{t:"อร่อย",r:"阿莱",m:"好吃"},{t:"จริง",r:"晶",m:"真"}]}] },
+                { t: "เช็คบิล", r: "Check-bin", m: "且-并", mean: "结账", desc: "英文check bill谐音。", sentences: [{zh:"结账",bricks:[{t:"เช็คบิล",r:"且并",m:"买单"}]}, {zh:"这里结账",bricks:[{t:"เก็บเงิน",r:"盖恩",m:"收钱"}]}, {zh:"一共多少",bricks:[{t:"เท่าไหร่",r:"套莱",m:"多少钱"}]}] },
+                { t: "ไก่", r: "Gai", m: "盖", mean: "鸡", desc: "(盖)饭吃鸡。", sentences: [{zh:"海南鸡饭",bricks:[{t:"ข้าว",r:"靠",m:"饭"},{t:"มัน",r:"满",m:"油"},{t:"ไก่",r:"盖",m:"鸡"}]}, {zh:"炸鸡",bricks:[{t:"ไก่",r:"盖",m:"鸡"},{t:"ทอด",r:"透",m:"炸"}]}, {zh:"不吃鸡",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"กิน",r:"金",m:"吃"},{t:"ไก่",r:"盖",m:"鸡"}]}] },
+                { t: "หมู", r: "Moo", m: "目", mean: "猪", desc: "猪(目)寸光。", sentences: [{zh:"猪肉",bricks:[{t:"เนื้อ",r:"努",m:"肉"},{t:"หมู",r:"目",m:"猪"}]}, {zh:"烤猪肉",bricks:[{t:"หมู",r:"目",m:"猪"},{t:"ปิ้ง",r:"冰",m:"烤"}]}, {zh:"猪脚饭",bricks:[{t:"ขา",r:"卡",m:"脚"},{t:"หมู",r:"目",m:"猪"}]}] },
+                { t: "กุ้ง", r: "Goong", m: "公", mean: "虾", desc: "老(公)爱吃虾。", sentences: [{zh:"冬阴功",bricks:[{t:"ต้ม",r:"冬",m:"煮"},{t:"ยำ",r:"阴",m:"拌"},{t:"กุ้ง",r:"公",m:"虾"}]}, {zh:"烤虾",bricks:[{t:"กุ้ง",r:"公",m:"虾"},{t:"เผา",r:"袍",m:"烧"}]}, {zh:"吃虾",bricks:[{t:"กิน",r:"金",m:"吃"},{t:"กุ้ง",r:"公",m:"虾"}]}] },
+                { t: "ปลา", r: "Pla", m: "扒", mean: "鱼", desc: "(扒)开鱼皮。", sentences: [{zh:"炸鱼",bricks:[{t:"ปลา",r:"扒",m:"鱼"},{t:"ทอด",r:"透",m:"炸"}]}, {zh:"柠檬鱼",bricks:[{t:"ปลา",r:"扒",m:"鱼"},{t:"นึ่ง",r:"能",m:"蒸"},{t:"มะนาว",r:"马闹",m:"柠檬"}]}, {zh:"不吃鱼",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"กิน",r:"金",m:"吃"},{t:"ปลา",r:"扒",m:"鱼"}]}] },
+                { t: "ผัก", r: "Pak", m: "帕", mean: "蔬菜", desc: "手(帕)包菜。", sentences: [{zh:"不吃菜",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"กิน",r:"金",m:"吃"},{t:"ผัก",r:"帕",m:"菜"}]}, {zh:"炒菜",bricks:[{t:"ผัด",r:"帕",m:"炒"},{t:"ผัก",r:"帕",m:"菜"}]}, {zh:"要蔬菜",bricks:[{t:"เอา",r:"奥",m:"要"},{t:"ผัก",r:"帕",m:"菜"}]}] },
+                { t: "ข้าว", r: "Khao", m: "靠", mean: "饭", desc: "(靠)这碗饭活着。", sentences: [{zh:"吃饭",bricks:[{t:"กิน",r:"金",m:"吃"},{t:"ข้าว",r:"靠",m:"饭"}]}, {zh:"炒饭",bricks:[{t:"ข้าว",r:"靠",m:"饭"},{t:"ผัด",r:"帕",m:"炒"}]}, {zh:"白饭",bricks:[{t:"ข้าว",r:"靠",m:"饭"},{t:"สวย",r:"帅",m:"美(白)"}]}] },
+                { t: "ก๋วยเตี๋ยว", r: "Kuay-tiao", m: "桂-条", mean: "面条", desc: "(桂)林米(条)。", sentences: [{zh:"吃面",bricks:[{t:"กิน",r:"金",m:"吃"},{t:"ก๋วยเตี๋ยว",r:"桂条",m:"面"}]}, {zh:"要面条",bricks:[{t:"เอา",r:"奥",m:"要"},{t:"ก๋วยเตี๋ยว",r:"桂条",m:"面"}]}, {zh:"面条汤",bricks:[{t:"น้ำ",r:"南",m:"汤/水"}]}] },
+                { t: "ผลไม้", r: "Pon-la-mai", m: "蓬-拉-卖", mean: "水果", desc: "(蓬)松的(拉)去(卖)。", sentences: [{zh:"吃水果",bricks:[{t:"กิน",r:"金",m:"吃"},{t:"ผลไม้",r:"蓬拉卖",m:"水果"}]}, {zh:"买水果",bricks:[{t:"ซื้อ",r:"思",m:"买"},{t:"ผลไม้",r:"蓬拉卖",m:"水果"}]}, {zh:"水果摊",bricks:[{t:"ร้าน",r:"兰",m:"店"},{t:"ผลไม้",r:"蓬拉卖",m:"水果"}]}] },
+                { t: "ทุเรียน", r: "Tu-rian", m: "吐-连", mean: "榴莲", desc: "好吃到(吐)还(连)着吃。", sentences: [{zh:"吃榴莲",bricks:[{t:"กิน",r:"金",m:"吃"},{t:"ทุเรียน",r:"吐连",m:"榴莲"}]}, {zh:"榴莲很贵",bricks:[{t:"ทุเรียน",r:"吐连",m:"榴莲"},{t:"แพง",r:"配昂",m:"贵"}]}, {zh:"喜欢榴莲",bricks:[{t:"ชอบ",r:"戳",m:"喜欢"},{t:"ทุเรียน",r:"吐连",m:"榴莲"}]}] },
+                { t: "มะม่วง", r: "Ma-muang", m: "马-忙", mean: "芒果", desc: "(马)很(忙)在吃芒果。", sentences: [{zh:"芒果糯米饭",bricks:[{t:"ข้าวเหนียว",r:"靠鸟",m:"糯米"},{t:"มะม่วง",r:"马忙",m:"芒果"}]}, {zh:"甜芒果",bricks:[{t:"มะม่วง",r:"马忙",m:"芒果"},{t:"หวาน",r:"晚",m:"甜"}]}, {zh:"酸芒果",bricks:[{t:"มะม่วง",r:"马忙",m:"芒果"},{t:"เปรี้ยว",r:"彪",m:"酸"}]}] },
+                { t: "หวาน", r: "Wan", m: "晚", mean: "甜", desc: "(晚)上吃甜食。", sentences: [{zh:"太甜了",bricks:[{t:"หวาน",r:"晚",m:"甜"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"少糖",bricks:[{t:"หวาน",r:"晚",m:"甜"},{t:"น้อย",r:"诺",m:"少"}]}, {zh:"不甜",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"หวาน",r:"晚",m:"甜"}]}] },
+                { t: "เปรี้ยว", r: "Preaw", m: "彪", mean: "酸", desc: "酸得(彪)悍。", sentences: [{zh:"酸辣",bricks:[{t:"เปรี้ยว",r:"彪",m:"酸"},{t:"เผ็ด",r:"撇",m:"辣"}]}, {zh:"有点酸",bricks:[{t:"เปรี้ยว",r:"彪",m:"酸"},{t:"หน่อย",r:"诺",m:"点"}]}, {zh:"不酸",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"เปรี้ยว",r:"彪",m:"酸"}]}] },
+                { t: "เค็ม", r: "Kem", m: "坑", mean: "咸", desc: "咸死(坑)人。", sentences: [{zh:"太咸",bricks:[{t:"เค็ม",r:"坑",m:"咸"},{t:"ไป",r:"拜",m:"太"}]}, {zh:"不要咸",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"เค็ม",r:"坑",m:"咸"}]}, {zh:"很咸",bricks:[{t:"เค็ม",r:"坑",m:"咸"},{t:"มาก",r:"马克",m:"很"}]}] },
+                { t: "ใส่", r: "Sai", m: "赛", mean: "放/加/穿", desc: "比(赛)加料。", sentences: [{zh:"不加糖",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"ใส่",r:"赛",m:"加"},{t:"น้ำตาล",r:"南丹",m:"糖"}]}, {zh:"加袋子",bricks:[{t:"ใส่",r:"赛",m:"装"},{t:"ถุง",r:"桶",m:"袋"}]}, {zh:"打包",bricks:[{t:"ใส่",r:"赛",m:"装"},{t:"ห่อ",r:"吼",m:"包"}]}] }
+            ]
+        },
+        {
+            name: "第四章：出行交通 (20词)", icon: "🚕",
+            words: [
+                { t: "ไป", r: "Pai", m: "拜", mean: "去", desc: "(拜)拜走人。", sentences: [{zh:"去哪里",bricks:[{t:"ไป",r:"拜",m:"去"},{t:"ไหน",r:"乃",m:"哪"}]}, {zh:"去机场",bricks:[{t:"ไป",r:"拜",m:"去"},{t:"สนามบิน",r:"萨南宾",m:"机场"}]}, {zh:"直走",bricks:[{t:"ตรง",r:"懂",m:"直"},{t:"ไป",r:"拜",m:"去"}]}] },
+                { t: "กลับ", r: "Klab", m: "格拉", mean: "回", desc: "格格(拉)我回去。", sentences: [{zh:"回家",bricks:[{t:"กลับ",r:"格拉",m:"回"},{t:"บ้าน",r:"办",m:"家"}]}, {zh:"回酒店",bricks:[{t:"กลับ",r:"格拉",m:"回"},{t:"โรงแรม",r:"龙莲",m:"酒店"}]}, {zh:"回去",bricks:[{t:"กลับ",r:"格拉",m:"回"},{t:"ไป",r:"拜",m:"去"}]}] },
+                { t: "รถ", r: "Rot", m: "洛", mean: "车", desc: "车(落)下。", sentences: [{zh:"坐车",bricks:[{t:"นั่ง",r:"囊",m:"坐"},{t:"รถ",r:"洛",m:"车"}]}, {zh:"堵车",bricks:[{t:"รถ",r:"洛",m:"车"},{t:"ติด",r:"底",m:"堵"}]}, {zh:"叫车",bricks:[{t:"เรียก",r:"列",m:"叫"},{t:"รถ",r:"洛",m:"车"}]}] },
+                { t: "แท็กซี่", r: "Taxi", m: "太洗", mean: "出租车", desc: "Taxi谐音。", sentences: [{zh:"叫出租",bricks:[{t:"เรียก",r:"列",m:"叫"},{t:"แท็กซี่",r:"太洗",m:"出租"}]}, {zh:"坐出租",bricks:[{t:"นั่ง",r:"囊",m:"坐"},{t:"แท็กซี่",r:"太洗",m:"出租"}]}, {zh:"出租车",bricks:[{t:"รถ",r:"洛",m:"车"},{t:"แท็กซี่",r:"太洗",m:"出租"}]}] },
+                { t: "สนามบิน", r: "Sa-nam-bin", m: "萨南宾", mean: "机场", desc: "(萨)达姆(南)边(兵)营。", sentences: [{zh:"去机场",bricks:[{t:"ไป",r:"拜",m:"去"},{t:"สนามบิน",r:"萨南宾",m:"机场"}]}, {zh:"在机场",bricks:[{t:"อยู่",r:"有",m:"在"},{t:"สนามบิน",r:"萨南宾",m:"机场"}]}, {zh:"机场很远",bricks:[{t:"สนามบิน",r:"萨南宾",m:"机场"},{t:"ไกล",r:"改",m:"远"}]}] },
+                { t: "โรงแรม", r: "Rong-raem", m: "龙莲", mean: "酒店", desc: "(龙)眼(莲)子酒店。", sentences: [{zh:"回酒店",bricks:[{t:"กลับ",r:"格拉",m:"回"},{t:"โรงแรม",r:"龙莲",m:"酒店"}]}, {zh:"酒店在哪里",bricks:[{t:"โรงแรม",r:"龙莲",m:"酒店"},{t:"ที่ไหน",r:"提奶",m:"哪"}]}, {zh:"订酒店",bricks:[{t:"จอง",r:"中",m:"订"},{t:"โรงแรม",r:"龙莲",m:"酒店"}]}] },
+                { t: "ตรงไป", r: "Trong-pai", m: "懂拜", mean: "直走", desc: "(懂)了就(拜)拜直走。", sentences: [{zh:"请直走",bricks:[{t:"เชิญ",r:"陈",m:"请"},{t:"ตรงไป",r:"懂拜",m:"直走"}]}, {zh:"一直走",bricks:[{t:"เดิน",r:"等",m:"走"},{t:"ตรงไป",r:"懂拜",m:"直"}]}, {zh:"直走就到了",bricks:[{t:"ตรงไป",r:"懂拜",m:"直"},{t:"ก็",r:"果",m:"就"},{t:"ถึง",r:"腾",m:"到"}]}] },
+                { t: "เลี้ยว", r: "Leo", m: "聊", mean: "转弯", desc: "(聊)天转弯。", sentences: [{zh:"左转",bricks:[{t:"เลี้ยว",r:"聊",m:"转"},{t:"ซ้าย",r:"塞",m:"左"}]}, {zh:"右转",bricks:[{t:"เลี้ยว",r:"聊",m:"转"},{t:"ขวา",r:"跨",m:"右"}]}, {zh:"前面转弯",bricks:[{t:"ข้างหน้า",r:"康纳",m:"前面"},{t:"เลี้ยว",r:"聊",m:"转"}]}] },
+                { t: "ซ้าย", r: "Sai", m: "塞", mean: "左", desc: "(塞)车在左边。", sentences: [{zh:"左边",bricks:[{t:"ทาง",r:"汤",m:"路"},{t:"ซ้าย",r:"塞",m:"左"}]}, {zh:"靠左",bricks:[{t:"ชิด",r:"七",m:"靠"},{t:"ซ้าย",r:"塞",m:"左"}]}, {zh:"左转",bricks:[{t:"เลี้ยว",r:"聊",m:"转"},{t:"ซ้าย",r:"塞",m:"左"}]}] },
+                { t: "ขวา", r: "Kwa", m: "跨", mean: "右", desc: "(跨)步向右。", sentences: [{zh:"右边",bricks:[{t:"ทาง",r:"汤",m:"路"},{t:"ขวา",r:"跨",m:"右"}]}, {zh:"靠右",bricks:[{t:"ชิด",r:"七",m:"靠"},{t:"ขวา",r:"跨",m:"右"}]}, {zh:"右转",bricks:[{t:"เลี้ยว",r:"聊",m:"转"},{t:"ขวา",r:"跨",m:"右"}]}] },
+                { t: "จอด", r: "Jod", m: "周", mean: "停", desc: "一(周)停一次。", sentences: [{zh:"停车",bricks:[{t:"จอด",r:"周",m:"停"},{t:"รถ",r:"洛",m:"车"}]}, {zh:"在这里停",bricks:[{t:"จอด",r:"周",m:"停"},{t:"ที่นี่",r:"提尼",m:"这"}]}, {zh:"不要停",bricks:[{t:"ห้าม",r:"汉",m:"禁"},{t:"จอด",r:"周",m:"停"}]}] },
+                { t: "ถึง", r: "Teung", m: "腾", mean: "到", desc: "(腾)空到达。", sentences: [{zh:"到了",bricks:[{t:"ถึง",r:"腾",m:"到"},{t:"แล้ว",r:"聊",m:"了"}]}, {zh:"还没到",bricks:[{t:"ยัง",r:"羊",m:"还"},{t:"ไม่",r:"卖",m:"不"},{t:"ถึง",r:"腾",m:"到"}]}, {zh:"到了吗",bricks:[{t:"ถึง",r:"腾",m:"到"},{t:"ไหม",r:"卖",m:"吗"}]}] },
+                { t: "ไกล", r: "Klai", m: "改", mean: "远", desc: "要(改)路因为远。", sentences: [{zh:"很远",bricks:[{t:"ไกล",r:"改",m:"远"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"不远",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"ไกล",r:"改",m:"远"}]}, {zh:"远吗",bricks:[{t:"ไกล",r:"改",m:"远"},{t:"ไหม",r:"卖",m:"吗"}]}] },
+                { t: "ใกล้", r: "Klai", m: "盖", mean: "近", desc: "(盖)被子很近。", sentences: [{zh:"很近",bricks:[{t:"ใกล้",r:"盖",m:"近"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"在这附近",bricks:[{t:"อยู่",r:"有",m:"在"},{t:"ใกล้ๆ",r:"盖盖",m:"附近"}]}, {zh:"近吗",bricks:[{t:"ใกล้",r:"盖",m:"近"},{t:"ไหม",r:"卖",m:"吗"}]}] },
+                { t: "เร็ว", r: "Reo", m: "溜", mean: "快", desc: "灰溜(溜)很快。", sentences: [{zh:"快点",bricks:[{t:"เร็วๆ",r:"溜溜",m:"快快"}]}, {zh:"开快点",bricks:[{t:"ขับ",r:"卡",m:"开"},{t:"เร็ว",r:"溜",m:"快"}]}, {zh:"太快了",bricks:[{t:"เร็ว",r:"溜",m:"快"},{t:"ไป",r:"拜",m:"太"}]}] },
+                { t: "ช้า", r: "Cha", m: "叉", mean: "慢", desc: "差(叉)不多慢点。", sentences: [{zh:"慢点",bricks:[{t:"ช้าๆ",r:"叉叉",m:"慢点"}]}, {zh:"开慢点",bricks:[{t:"ขับ",r:"卡",m:"开"},{t:"ช้าๆ",r:"叉叉",m:"慢"}]}, {zh:"太慢了",bricks:[{t:"ช้า",r:"叉",m:"慢"},{t:"ไป",r:"拜",m:"太"}]}] },
+                { t: "ทาง", r: "Tang", m: "汤", mean: "路/方向", desc: "喝(汤)迷了路。", sentences: [{zh:"迷路",bricks:[{t:"หลง",r:"龙",m:"迷"},{t:"ทาง",r:"汤",m:"路"}]}, {zh:"这边",bricks:[{t:"ทาง",r:"汤",m:"路"},{t:"นี้",r:"尼",m:"这"}]}, {zh:"哪边",bricks:[{t:"ทาง",r:"汤",m:"路"},{t:"ไหน",r:"乃",m:"哪"}]}] },
+                { t: "รอ", r: "Ror", m: "罗", mean: "等", desc: "(罗)志祥在等。", sentences: [{zh:"等一下",bricks:[{t:"รอ",r:"罗",m:"等"},{t:"แป๊บ",r:",bep",m:"一下"}]}, {zh:"等我",bricks:[{t:"รอ",r:"罗",m:"等"},{t:"ฉัน",r:"蝉",m:"我"}]}, {zh:"不用等",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"ต้อง",r:"东",m:"用"},{t:"รอ",r:"罗",m:"等"}]}] },
+                { t: "ขับ", r: "Kub", m: "卡", mean: "开(车)", desc: "(卡)车也是开。", sentences: [{zh:"开车",bricks:[{t:"ขับ",r:"卡",m:"开"},{t:"รถ",r:"洛",m:"车"}]}, {zh:"司机",bricks:[{t:"คน",r:"坤",m:"人"},{t:"ขับ",r:"卡",m:"开"},{t:"รถ",r:"洛",m:"车"}]}, {zh:"会开车吗",bricks:[{t:"ขับ",r:"卡",m:"开"},{t:"เป็น",r:"奔",m:"会"},{t:"ไหม",r:"卖",m:"吗"}]}] },
+                { t: "ที่นี่", r: "Tee-nee", m: "提尼", mean: "这里", desc: "(提)着(泥)土在这里。", sentences: [{zh:"在这里",bricks:[{t:"อยู่",r:"有",m:"在"},{t:"ที่นี่",r:"提尼",m:"这"}]}, {zh:"这里有",bricks:[{t:"ที่นี่",r:"提尼",m:"这"},{t:"มี",r:"米",m:"有"}]}, {zh:"来这里",bricks:[{t:"มา",r:"马",m:"来"},{t:"ที่นี่",r:"提尼",m:"这"}]}] }
+            ]
+        },
+        {
+            name: "第五章：生活与爱 (20词)", icon: "❤️",
+            words: [
+                { t: "สวย", r: "Suay", m: "帅", mean: "漂亮", desc: "泰国(帅)就是美。", sentences: [{zh:"你真漂亮",bricks:[{t:"คุณ",r:"坤",m:"你"},{t:"สวย",r:"帅",m:"美"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"美女",bricks:[{t:"คน",r:"坤",m:"人"},{t:"สวย",r:"帅",m:"美"}]}, {zh:"这里很美",bricks:[{t:"ที่นี่",r:"提尼",m:"这"},{t:"สวย",r:"帅",m:"美"}]}] },
+                { t: "หล่อ", r: "Lor", m: "罗", mean: "帅气", desc: "(罗)汉很帅。", sentences: [{zh:"很帅",bricks:[{t:"หล่อ",r:"罗",m:"帅"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"帅哥",bricks:[{t:"คน",r:"坤",m:"人"},{t:"หล่อ",r:"罗",m:"帅"}]}, {zh:"帅吗",bricks:[{t:"หล่อ",r:"罗",m:"帅"},{t:"ไหม",r:"卖",m:"吗"}]}] },
+                { t: "น่ารัก", r: "Na-rak", m: "纳拉克", mean: "可爱", desc: "(纳)米(拉克)丝。", sentences: [{zh:"很可爱",bricks:[{t:"น่ารัก",r:"纳拉克",m:"可爱"},{t:"จัง",r:"将",m:"真"}]}, {zh:"你很可爱",bricks:[{t:"คุณ",r:"坤",m:"你"},{t:"น่ารัก",r:"纳拉克",m:"可爱"}]}, {zh:"不可爱",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"น่ารัก",r:"纳拉克",m:"可爱"}]}] },
+                { t: "รัก", r: "Rak", m: "拉克", mean: "爱", desc: "爱穿(拉克)丝。", sentences: [{zh:"我爱你",bricks:[{t:"ฉัน",r:"蝉",m:"我"},{t:"รัก",r:"拉克",m:"爱"},{t:"คุณ",r:"坤",m:"你"}]}, {zh:"爱泰国",bricks:[{t:"รัก",r:"拉克",m:"爱"},{t:"เมืองไทย",r:"蒙泰",m:"泰国"}]}, {zh:"相爱",bricks:[{t:"รัก",r:"拉克",m:"爱"},{t:"กัน",r:"干",m:"互相"}]}] },
+                { t: "ชอบ", r: "Chob", m: "戳", mean: "喜欢", desc: "(戳)一下代表喜欢。", sentences: [{zh:"我喜欢你",bricks:[{t:"ฉัน",r:"蝉",m:"我"},{t:"ชอบ",r:"戳",m:"喜"},{t:"คุณ",r:"坤",m:"你"}]}, {zh:"不喜欢",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"ชอบ",r:"戳",m:"喜"}]}, {zh:"喜欢吗",bricks:[{t:"ชอบ",r:"戳",m:"喜"},{t:"ไหม",r:"卖",m:"吗"}]}] },
+                { t: "คิดถึง", r: "Kit-teung", m: "其疼", mean: "想念", desc: "(其)实心(疼)因想念。", sentences: [{zh:"我想你",bricks:[{t:"คิดถึง",r:"其疼",m:"想"},{t:"คุณ",r:"坤",m:"你"}]}, {zh:"很想",bricks:[{t:"คิดถึง",r:"其疼",m:"想"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"想家",bricks:[{t:"คิดถึง",r:"其疼",m:"想"},{t:"บ้าน",r:"办",m:"家"}]}] },
+                { t: "แฟน", r: "Faen", m: "粉", mean: "对象/粉丝", desc: "男朋(粉)友。", sentences: [{zh:"有对象了吗",bricks:[{t:"มี",r:"米",m:"有"},{t:"แฟน",r:"粉",m:"对象"},{t:"ยัง",r:"羊",m:"没"}]}, {zh:"我的男/女友",bricks:[{t:"แฟน",r:"粉",m:"对象"},{t:"ฉัน",r:"蝉",m:"我"}]}, {zh:"没有对象",bricks:[{t:"ไม่",r:"卖",m:"没"},{t:"มี",r:"米",m:"有"},{t:"แฟน",r:"粉",m:"对象"}]}] },
+                { t: "สนุก", r: "Sa-nook", m: "萨努", mean: "有趣/好玩", desc: "(萨努)比很好玩。", sentences: [{zh:"好玩吗",bricks:[{t:"สนุก",r:"萨努",m:"好玩"},{t:"ไหม",r:"卖",m:"吗"}]}, {zh:"很好玩",bricks:[{t:"สนุก",r:"萨努",m:"好玩"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"不有趣",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"สนุก",r:"萨努",m:"好玩"}]}] },
+                { t: "ดี", r: "Dee", m: "迪", mean: "好", desc: "(迪)士尼很好。", sentences: [{zh:"很好",bricks:[{t:"ดี",r:"迪",m:"好"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"心情好",bricks:[{t:"อารมณ์",r:"阿隆",m:"心情"},{t:"ดี",r:"迪",m:"好"}]}, {zh:"好吗",bricks:[{t:"ดี",r:"迪",m:"好"},{t:"ไหม",r:"卖",m:"吗"}]}] },
+                { t: "ร้อน", r: "Ron", m: "龙", mean: "热", desc: "(龙)喷火很热。", sentences: [{zh:"很热",bricks:[{t:"ร้อน",r:"龙",m:"热"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"天气热",bricks:[{t:"อากาศ",r:"阿嘎",m:"天气"},{t:"ร้อน",r:"龙",m:"热"}]}, {zh:"不热",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"ร้อน",r:"龙",m:"热"}]}] },
+                { t: "เย็น", r: "Yen", m: "烟", mean: "凉", desc: "抽(烟)乘凉。", sentences: [{zh:"冰咖啡",bricks:[{t:"กาแฟ",r:"嘎飞",m:"咖啡"},{t:"เย็น",r:"烟",m:"凉"}]}, {zh:"凉快",bricks:[{t:"เย็น",r:"烟",m:"凉"},{t:"สบาย",r:"萨拜",m:"舒服"}]}, {zh:"心凉(冷静)",bricks:[{t:"ใจ",r:"斋",m:"心"},{t:"เย็น",r:"烟",m:"凉"}]}] },
+                { t: "หนาว", r: "Nao", m: "闹", mean: "冷", desc: "冷得热闹。", sentences: [{zh:"很冷",bricks:[{t:"หนาว",r:"闹",m:"冷"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"怕冷",bricks:[{t:"กลัว",r:"格鲁",m:"怕"},{t:"หนาว",r:"闹",m:"冷"}]}, {zh:"冷吗",bricks:[{t:"หนาว",r:"闹",m:"冷"},{t:"ไหม",r:"卖",m:"吗"}]}] },
+                { t: "หมา", r: "Ma", m: "马", mean: "狗", desc: "指鹿为(马)其实是狗。", sentences: [{zh:"可爱的狗",bricks:[{t:"หมา",r:"马",m:"狗"},{t:"น่ารัก",r:"纳拉克",m:"可爱"}]}, {zh:"养狗",bricks:[{t:"เลี้ยง",r:"连",m:"养"},{t:"หมา",r:"马",m:"狗"}]}, {zh:"狗叫",bricks:[{t:"หมา",r:"马",m:"狗"},{t:"เห่า",r:"浩",m:"叫"}]}] },
+                { t: "แมว", r: "Maew", m: "苗", mean: "猫", desc: "猫叫(苗)苗。", sentences: [{zh:"喜欢猫",bricks:[{t:"ชอบ",r:"戳",m:"喜"},{t:"แมว",r:"苗",m:"猫"}]}, {zh:"猫睡觉",bricks:[{t:"แมว",r:"苗",m:"猫"},{t:"นอน",r:"囊",m:"睡"}]}, {zh:"喂猫",bricks:[{t:"เลี้ยง",r:"连",m:"养"},{t:"แมว",r:"苗",m:"猫"}]}] },
+                { t: "หมอ", r: "Mor", m: "魔", mean: "医生", desc: "(魔)法医生。", sentences: [{zh:"去看医生",bricks:[{t:"ไป",r:"拜",m:"去"},{t:"หา",r:"哈",m:"找"},{t:"หมอ",r:"魔",m:"医"}]}, {zh:"医生好",bricks:[{t:"สวัสดี",r:"萨哇低",m:"你好"},{t:"หมอ",r:"魔",m:"医"}]}, {zh:"牙医",bricks:[{t:"หมอ",r:"魔",m:"医"},{t:"ฟัน",r:"凡",m:"牙"}]}] },
+                { t: "ยา", r: "Ya", m: "亚", mean: "药", desc: "(亚)洲的药。", sentences: [{zh:"吃药",bricks:[{t:"กิน",r:"金",m:"吃"},{t:"ยา",r:"亚",m:"药"}]}, {zh:"买药",bricks:[{t:"ซื้อ",r:"思",m:"买"},{t:"ยา",r:"亚",m:"药"}]}, {zh:"药店",bricks:[{t:"ร้าน",r:"兰",m:"店"},{t:"ยา",r:"亚",m:"药"}]}] },
+                { t: "ป่วย", r: "Puay", m: "不", mean: "生病", desc: "(不)舒服生病。", sentences: [{zh:"我生病了",bricks:[{t:"ฉัน",r:"蝉",m:"我"},{t:"ป่วย",r:"不",m:"病"}]}, {zh:"不生病",bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"ป่วย",r:"不",m:"病"}]}, {zh:"病好了",bricks:[{t:"หาย",r:"海",m:"好"},{t:"ป่วย",r:"不",m:"病"}]}] },
+                { t: "เจ็บ", r: "Jeb", m: "接", mean: "疼", desc: "(接)骨很疼。", sentences: [{zh:"疼吗",bricks:[{t:"เจ็บ",r:"接",m:"疼"},{t:"ไหม",r:"卖",m:"吗"}]}, {zh:"很疼",bricks:[{t:"เจ็บ",r:"接",m:"疼"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"心疼",bricks:[{t:"เจ็บ",r:"接",m:"疼"},{t:"ใจ",r:"斋",m:"心"}]}] },
+                { t: "สุขสันต์", r: "Suk-san", m: "苏散", mean: "快乐", desc: "(苏)州(散)步快乐。", sentences: [{zh:"生日快乐",bricks:[{t:"สุขสันต์",r:"苏散",m:"快乐"},{t:"วันเกิด",r:"湾葛",m:"生日"}]}, {zh:"新年快乐",bricks:[{t:"สวัสดี",r:"萨哇低",m:"好"},{t:"ปีใหม่",r:"比卖",m:"新年"}]}, {zh:"快乐",bricks:[{t:"มี",r:"米",m:"有"},{t:"ความสุข",r:"宽苏",m:"幸福"}]}] },
+                { t: "คนไทย", r: "Khon-Thai", m: "坤泰", mean: "泰国人", desc: "谢广(坤)是(泰)国人。", sentences: [{zh:"我是泰国人",bricks:[{t:"ฉัน",r:"蝉",m:"我"},{t:"เป็น",r:"奔",m:"是"},{t:"คนไทย",r:"坤泰",m:"泰人"}]}, {zh:"你是泰国人吗",bricks:[{t:"เป็น",r:"奔",m:"是"},{t:"คนไทย",r:"坤泰",m:"泰人"},{t:"ไหม",r:"卖",m:"吗"}]}, {zh:"爱泰国人",bricks:[{t:"รัก",r:"拉克",m:"爱"},{t:"คนไทย",r:"坤泰",m:"泰人"}]}] }
+            ]
+        }
+    ];
+
+    const app = {
+        m: 0, w: 0,
+        
+        renderNav() {
+            const nav = document.getElementById('nav-target');
+            if(!nav) return;
+            let html = "";
+            FULL_DATA.forEach((module, mi) => {
+                html += `<div class="nav-header"><span>${module.icon}</span> <span>${module.name}</span></div>`;
+                module.words.forEach((word, wi) => {
+                    const active = (this.m === mi && this.w === wi) ? 'active' : '';
+                    html += `<div class="nav-item ${active}" onclick="app.loadWord(${mi}, ${wi})">
+                                ${wi + 1}. ${word.mean} (${word.t})
+                             </div>`;
+                });
+            });
+            nav.innerHTML = html;
+        },
+
+        loadWord(mi, wi) {
+            this.m = mi; this.w = wi;
+            this.renderNav();
+            
+            document.getElementById('view-welcome').classList.add('hidden');
+            document.getElementById('view-study').classList.remove('hidden');
+
+            const data = FULL_DATA[mi].words[wi];
+            document.getElementById('header-title').innerText = `${FULL_DATA[mi].name} > ${data.mean}`;
+            
+            document.querySelector('.card-thai').innerText = data.t;
+            document.querySelector('.card-roma').innerText = data.r;
+            document.querySelector('.card-mean').innerText = data.mean;
+            document.querySelector('.mnem-word').innerText = data.m;
+            document.querySelector('.mnem-desc').innerText = data.desc;
+
+            const box = document.getElementById('sentences-box');
+            box.innerHTML = data.sentences.map(s => {
+                // 拼接朗读文本
+                const fullSentence = s.bricks.map(b => b.t).join('');
+                return `
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="text-sm font-bold text-gray-500">🎧 ${s.zh}</div>
+                        <button onclick="app.speakText('${fullSentence}')" class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full border border-blue-200 btn-speak flex items-center gap-1">
+                            <span>🔊</span> 朗读
+                        </button>
+                    </div>
+                    <div class="brick-row">
+                        ${s.bricks.map(b => `
+                            <div class="brick">
+                                <div class="brick-th">${b.t}</div>
+                                <div class="brick-rd">${b.r}</div>
+                                <div class="brick-mn">${b.m}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `}).join('');
+
+            if(window.innerWidth < 1024) ui.toggleSidebar();
+        },
+
+        next() {
+            if (this.w < FULL_DATA[this.m].words.length - 1) this.loadWord(this.m, this.w + 1);
+            else if (this.m < FULL_DATA.length - 1) this.loadWord(this.m + 1, 0);
+        },
+        
+        prev() {
+            if (this.w > 0) this.loadWord(this.m, this.w - 1);
+            else if (this.m > 0) {
+                let prevM = this.m - 1;
+                this.loadWord(prevM, FULL_DATA[prevM].words.length - 1);
+            }
+        },
+
+        speak(e) {
+            e.stopPropagation();
+            const msg = new SpeechSynthesisUtterance(FULL_DATA[this.m].words[this.w].t);
+            msg.lang = 'th-TH'; window.speechSynthesis.speak(msg);
+        },
+
+        speakText(text) {
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'th-TH'; 
+            window.speechSynthesis.speak(msg);
+        }
+    };
+
+    const ui = {
+        toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('open');
+            document.querySelector('.overlay').classList.toggle('show');
+        }
+    };
+
+    // 启动
+    window.onload = () => app.renderNav();
+</script>
+
+    <div id="overlay" class="overlay" onclick="ui.toggleSidebar()"></div>
+
+    <aside class="sidebar shadow-xl md:shadow-none">
+        <div class="p-6 bg-blue-800 text-white shrink-0">
+            <h1 class="font-black text-xl italic tracking-tighter uppercase">Thai Easy Pro v23</h1>
+        </div>
+        <nav id="nav-target" class="flex-1 overflow-y-auto"></nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="p-4 bg-white border-b flex items-center justify-between sticky top-0 z-30 shadow-sm shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="ui.toggleSidebar()" class="p-2 bg-slate-100 rounded-lg md:hidden">☰</button>
+                <span id="header-title" class="font-bold text-slate-700 italic">请在左侧选择单词</span>
+            </div>
+        </header>
+
+        <div class="p-4 lg:p-8">
+            <div id="view-welcome" class="text-center py-20">
+                <div class="text-9xl mb-8 animate-bounce">📚</div>
+                <h2 class="text-3xl font-black text-slate-800 mb-4">100词全量库已加载</h2>
+                <p class="text-slate-500 mb-10">点击左侧目录，开始您的泰语实战之旅。</p>
+                <button onclick="app.loadWord(0,0)" class="bg-blue-600 text-white px-12 py-4 rounded-2xl font-bold shadow-xl hover:bg-blue-700 transition">开始学习</button>
+            </div>
+
+            <div id="view-study" class="hidden flex flex-col lg:flex-row gap-8 items-start">
+                <div class="w-full lg:w-1/3 flex flex-col items-center sticky top-4">
+                    <div class="static-card mb-6">
+                        <div class="card-thai">...</div>
+                        <div class="card-roma">...</div>
+                        <div class="card-mean">...</div>
+                        <div class="w-full h-px bg-gray-200 my-2"></div>
+                        <div class="mnemonic-box">
+                            <div class="mnem-title">Chinese Mnemonic</div>
+                            <div class="mnem-word">...</div>
+                            <div class="mnem-desc">...</div>
+                        </div>
+                        <button onclick="app.speak(event)" class="mt-6 bg-blue-100 text-blue-700 border border-blue-200 px-8 py-3 rounded-full font-bold hover:bg-blue-200 transition btn-speak">🔊 朗读单词</button>
+                    </div>
+
+                    <div class="flex gap-4 w-full max-w-sm">
+                        <button onclick="app.prev()" class="flex-1 py-4 bg-white border border-slate-200 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 transition">上一个</button>
+                        <button onclick="app.next()" class="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl hover:bg-slate-800 transition">下一个</button>
+                    </div>
+                </div>
+
+                <div class="w-full lg:w-2/3 space-y-6">
+                    <div class="bg-blue-600 text-white p-4 rounded-2xl shadow-md">
+                        <h3 class="text-lg font-black italic">实战场景拆解</h3>
+                    </div>
+                    <div id="sentences-box" class="space-y-4 pb-20"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
