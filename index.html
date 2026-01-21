@@ -2,72 +2,90 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>泰轻松 Pro v25 - 发音精准矫正版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>泰轻松 Pro v26 - 移动端完美版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #2563eb; }
-        body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display: flex; overflow: hidden; background: #f8fafc; }
+        /* 核心修复：使用 dvh 解决手机浏览器地址栏遮挡问题 */
+        body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; height: 100dvh; display: flex; overflow: hidden; background: #f8fafc; }
         
-        /* 侧边栏 */
-        .sidebar { width: 300px; background: white; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; shrink-0; transition: transform 0.3s ease; z-index: 50; }
-        .main-content { flex: 1; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; }
+        /* 侧边栏：手机端样式优化 */
+        .sidebar { 
+            width: 85%; max-width: 320px; background: white; border-right: 1px solid #e2e8f0; 
+            display: flex; flex-direction: column; shrink-0; 
+            position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); 
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            z-index: 60; box-shadow: 10px 0 25px -5px rgba(0,0,0,0.1);
+        }
+        .sidebar.open { transform: translateX(0); }
         
-        @media (max-width: 1024px) {
-            .sidebar { position: fixed; transform: translateX(-100%); height: 100%; width: 85%; }
-            .sidebar.open { transform: translateX(0); }
-            .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40; }
-            .overlay.show { display: block; }
+        /* 大屏幕侧边栏复位 */
+        @media (min-width: 1024px) {
+            .sidebar { position: relative; transform: none; width: 300px; box-shadow: none; z-index: 10; }
+            .mobile-fab { display: none !important; } /* 大屏隐藏悬浮球 */
         }
 
-        /* 导航 */
-        .nav-header { padding: 12px 16px; background: #f1f5f9; font-weight: 900; color: #1e3a8a; font-size: 0.95rem; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
-        .nav-item { padding: 12px 16px 12px 24px; font-size: 14px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #f8fafc; color: #475569; transition: all 0.2s; display: block; }
-        .nav-item:hover { background: #f8fafc; color: var(--primary); padding-left: 28px; }
+        .main-content { flex: 1; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; position: relative; }
+        
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 50; backdrop-filter: blur(2px); }
+        .overlay.show { display: block; }
+
+        /* 导航条目 */
+        .nav-header { padding: 16px; background: #f1f5f9; font-weight: 900; color: #1e3a8a; font-size: 1rem; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
+        .nav-item { padding: 14px 16px 14px 24px; font-size: 15px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #f1f5f9; color: #475569; display: block; }
         .nav-item.active { background: #eff6ff; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
 
-        /* 实战积木 (三层) */
+        /* 实战积木 */
         .brick-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .brick { 
-            background: white; border: 1px solid #cbd5e1; border-radius: 10px; 
-            padding: 8px 6px; text-align: center; flex: 1; min-width: 65px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03); 
-            display: flex; flex-direction: column; justify-content: center;
+            background: white; border: 1px solid #cbd5e1; border-radius: 12px; 
+            padding: 8px 10px; text-align: center; flex: 1; min-width: 70px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: center;
         }
         .brick-th { color: #1e40af; font-weight: 800; font-size: 1rem; line-height: 1.2; }
         .brick-rd { color: #dc2626; font-size: 0.8rem; font-weight: bold; margin: 3px 0; }
-        .brick-mn { color: #64748b; font-size: 0.7rem; }
+        .brick-mn { color: #64748b; font-size: 0.75rem; }
 
-        /* 左侧静态卡片 */
+        /* 静态大卡片 */
         .static-card {
             background: linear-gradient(145deg, #ffffff, #f8fafc);
-            border: 1px solid #e2e8f0; border-radius: 24px; padding: 30px 20px;
-            text-align: center; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08);
-            width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 10px;
+            border: 1px solid #e2e8f0; border-radius: 24px; padding: 24px;
+            text-align: center; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+            width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 8px;
         }
-        .card-thai { font-size: 3.5rem; font-weight: 900; color: #1e3a8a; letter-spacing: -1px; line-height: 1.1; }
-        .card-roma { font-size: 1.1rem; color: #94a3b8; font-style: italic; margin-bottom: 5px; }
-        .card-mean { font-size: 2rem; font-weight: 800; color: #0f172a; margin: 5px 0; }
+        .card-thai { font-size: 3.5rem; font-weight: 900; color: #1e3a8a; letter-spacing: -1px; line-height: 1.2; }
+        .card-roma { font-size: 1.1rem; color: #94a3b8; font-style: italic; margin-bottom: 4px; }
+        .card-mean { font-size: 2rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
         
-        .mnemonic-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 16px; padding: 15px; margin-top: 10px; }
-        .mnem-title { font-size: 0.75rem; color: #c2410c; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
-        .mnem-word { font-size: 2.2rem; font-weight: 900; color: #ea580c; margin: 5px 0; letter-spacing: 2px; }
+        .mnemonic-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 16px; padding: 16px; margin-top: 8px; }
+        .mnem-word { font-size: 2rem; font-weight: 900; color: #ea580c; margin: 4px 0; letter-spacing: 1px; }
         .mnem-desc { font-size: 0.95rem; color: #475569; font-style: italic; line-height: 1.5; }
 
-        .btn-speak { transition: transform 0.1s; }
-        .btn-speak:active { transform: scale(0.95); }
+        .btn-tap:active { transform: scale(0.96); opacity: 0.9; }
 
-        ::-webkit-scrollbar { width: 6px; }
+        /* 底部悬浮目录按钮 (Mobile Fab) */
+        .mobile-fab {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #1e3a8a; color: white;
+            padding: 12px 30px; border-radius: 50px;
+            font-weight: bold; box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.5);
+            z-index: 40; display: flex; items-center; gap: 8px; cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
     </style>
 </head>
 <body>
 
 <script>
-    // === 100% 完整全量数据 (5板块 x 20词) - 发音精修版 ===
+    // === 100% 全量数据 (5板块 x 20词) ===
     const FULL_DATA = [
         {
-            name: "第一章：社交生存 (20词)", icon: "🤝",
+            name: "第一章：社交生存", icon: "🤝",
             words: [
                 { t: "สวัสดี", r: "Sa-wa-dee", m: "萨-瓦-迪", mean: "你好", desc: "每天(萨)哇一声，(瓦)片落地，(迪)确有礼貌。", sentences: [{zh:"你好，很高兴认识你", bricks:[{t:"สวัสดี",r:"萨瓦迪",m:"你好"},{t:"ยินดี",r:"银迪",m:"高兴"},{t:"ที่ได้",r:"提袋",m:"能"},{t:"รู้จัก",r:"卢扎",m:"认识"}]}, {zh:"老师好", bricks:[{t:"สวัสดี",r:"萨瓦迪",m:"你好"},{t:"คุณครู",r:"坤哭",m:"老师"}]}, {zh:"大家好", bricks:[{t:"สวัสดี",r:"萨瓦迪",m:"你好"},{t:"ทุกคน",r:"土坤",m:"大家"}]}] },
                 { t: "ขอบคุณ", r: "Khop-khun", m: "靠-坤", mean: "谢谢", desc: "有了依(靠)，就要感谢乾(坤)。", sentences: [{zh:"非常感谢", bricks:[{t:"ขอบคุณ",r:"靠坤",m:"谢谢"},{t:"มาก",r:"马克",m:"非常"}]}, {zh:"谢谢你的礼物", bricks:[{t:"ขอบคุณ",r:"靠坤",m:"谢谢"},{t:"สำหรับ",r:"萨拉",m:"对于"},{t:"ของขวัญ",r:"空款",m:"礼物"}]}, {zh:"谢谢帮忙", bricks:[{t:"ขอบคุณ",r:"靠坤",m:"谢谢"},{t:"ที่ช่วย",r:"提吹",m:"帮忙"}]}] },
@@ -92,7 +110,7 @@
             ]
         },
         {
-            name: "第二章：疯狂购物 (20词)", icon: "🛍️",
+            name: "第二章：疯狂购物", icon: "🛍️",
             words: [
                 { t: "เท่าไหร่", r: "Tao-rai", m: "掏-莱", mean: "多少钱", desc: "(掏)钱出(莱)买东西。", sentences: [{zh:"这个多少钱？", bricks:[{t:"อันนี้",r:"安尼",m:"这个"},{t:"เท่าไหร่",r:"掏莱",m:"多少钱"}]}, {zh:"一共多少钱？", bricks:[{t:"ทั้งหมด",r:"当莫",m:"全部"},{t:"เท่าไหร่",r:"掏莱",m:"多少钱"}]}, {zh:"那件多少钱？", bricks:[{t:"ตัวนั้น",r:"多难",m:"那件"},{t:"เท่าไหร่",r:"掏莱",m:"多少钱"}]}] },
                 { t: "แพง", r: "Phaeng", m: "配-昂", mean: "贵", desc: "价格不(配)我，(昂)贵。", sentences: [{zh:"太贵了！", bricks:[{t:"แพง",r:"配昂",m:"贵"},{t:"มาก",r:"马克",m:"太"}]}, {zh:"有点贵", bricks:[{t:"แพง",r:"配昂",m:"贵"},{t:"หน่อย",r:"诺",m:"点"}]}, {zh:"不贵", bricks:[{t:"ไม่",r:"卖",m:"不"},{t:"แพง",r:"配昂",m:"贵"}]}] },
@@ -117,7 +135,7 @@
             ]
         },
         {
-            name: "第三章：吃喝玩乐 (20词)", icon: "🍜",
+            name: "第三章：吃喝玩乐", icon: "🍜",
             words: [
                 { t: "กิน", r: "Kin", m: "金", mean: "吃", desc: "吞(金)子吃。", sentences: [{zh:"吃饭",bricks:[{t:"กิน",r:"金",m:"吃"},{t:"ข้าว",r:"靠",m:"饭"}]}, {zh:"好吃吗",bricks:[{t:"อร่อย",r:"阿莱",m:"好吃"},{t:"ไหม",r:"卖",m:"吗"}]}, {zh:"吃饱了",bricks:[{t:"อิ่ม",r:"饮",m:"饱"},{t:"แล้ว",r:"聊",m:"了"}]}] },
                 { t: "น้ำ", r: "Nam", m: "南", mean: "水", desc: "(南)水北调。", sentences: [{zh:"喝水",bricks:[{t:"ดื่ม",r:"饮",m:"喝"},{t:"น้ำ",r:"南",m:"水"}]}, {zh:"冰水",bricks:[{t:"น้ำ",r:"南",m:"水"},{t:"แข็ง",r:"肯",m:"冰"}]}, {zh:"要水",bricks:[{t:"เอา",r:"奥",m:"要"},{t:"น้ำ",r:"南",m:"水"}]}] },
@@ -142,7 +160,7 @@
             ]
         },
         {
-            name: "第四章：出行交通 (20词)", icon: "🚕",
+            name: "第四章：出行交通", icon: "🚕",
             words: [
                 { t: "ไป", r: "Pai", m: "拜", mean: "去", desc: "(拜)拜走人。", sentences: [{zh:"去哪里",bricks:[{t:"ไป",r:"拜",m:"去"},{t:"ไหน",r:"乃",m:"哪"}]}, {zh:"去机场",bricks:[{t:"ไป",r:"拜",m:"去"},{t:"สนามบิน",r:"萨南宾",m:"机场"}]}, {zh:"直走",bricks:[{t:"ตรง",r:"懂",m:"直"},{t:"ไป",r:"拜",m:"去"}]}] },
                 { t: "กลับ", r: "Klab", m: "格拉", mean: "回", desc: "格格(拉)我回去。", sentences: [{zh:"回家",bricks:[{t:"กลับ",r:"格拉",m:"回"},{t:"บ้าน",r:"办",m:"家"}]}, {zh:"回酒店",bricks:[{t:"กลับ",r:"格拉",m:"回"},{t:"โรงแรม",r:"龙莲",m:"酒店"}]}, {zh:"回去",bricks:[{t:"กลับ",r:"格拉",m:"回"},{t:"ไป",r:"拜",m:"去"}]}] },
@@ -167,7 +185,7 @@
             ]
         },
         {
-            name: "第五章：生活与爱 (20词)", icon: "❤️",
+            name: "第五章：生活与爱", icon: "❤️",
             words: [
                 { t: "สวย", r: "Suay", m: "帅", mean: "漂亮", desc: "泰国(帅)就是美。", sentences: [{zh:"你真漂亮",bricks:[{t:"คุณ",r:"坤",m:"你"},{t:"สวย",r:"帅",m:"美"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"美女",bricks:[{t:"คน",r:"坤",m:"人"},{t:"สวย",r:"帅",m:"美"}]}, {zh:"这里很美",bricks:[{t:"ที่นี่",r:"提尼",m:"这"},{t:"สวย",r:"帅",m:"美"}]}] },
                 { t: "หล่อ", r: "Lor", m: "罗", mean: "帅气", desc: "(罗)汉很帅。", sentences: [{zh:"很帅",bricks:[{t:"หล่อ",r:"罗",m:"帅"},{t:"มาก",r:"马克",m:"很"}]}, {zh:"帅哥",bricks:[{t:"คน",r:"坤",m:"人"},{t:"หล่อ",r:"罗",m:"帅"}]}, {zh:"帅吗",bricks:[{t:"หล่อ",r:"罗",m:"帅"},{t:"ไหม",r:"卖",m:"吗"}]}] },
@@ -230,7 +248,6 @@
 
             const box = document.getElementById('sentences-box');
             box.innerHTML = data.sentences.map(s => {
-                // 拼接朗读文本
                 const fullSentence = s.bricks.map(b => b.t).join('');
                 return `
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
@@ -252,7 +269,9 @@
                 </div>
             `}).join('');
 
-            if(window.innerWidth < 1024) ui.toggleSidebar();
+            // Mobile FAB toggle
+            const fab = document.getElementById('mobile-fab');
+            if (window.innerWidth < 1024) ui.toggleSidebar(false);
         },
 
         next() {
@@ -282,13 +301,19 @@
     };
 
     const ui = {
-        toggleSidebar() {
-            document.querySelector('.sidebar').classList.toggle('open');
-            document.querySelector('.overlay').classList.toggle('show');
+        toggleSidebar(force) {
+            const sb = document.querySelector('.sidebar');
+            const ov = document.querySelector('.overlay');
+            if (typeof force === 'boolean') {
+                force ? sb.classList.add('open') : sb.classList.remove('open');
+                force ? ov.classList.add('show') : ov.classList.remove('show');
+            } else {
+                sb.classList.toggle('open');
+                ov.classList.toggle('show');
+            }
         }
     };
 
-    // 启动
     window.onload = () => app.renderNav();
 </script>
 
@@ -296,10 +321,14 @@
 
     <aside class="sidebar shadow-xl md:shadow-none">
         <div class="p-6 bg-blue-800 text-white shrink-0">
-            <h1 class="font-black text-xl italic tracking-tighter uppercase">Thai Easy Pro v23</h1>
+            <h1 class="font-black text-xl italic tracking-tighter uppercase">Thai Easy Pro v25</h1>
         </div>
-        <nav id="nav-target" class="flex-1 overflow-y-auto"></nav>
+        <nav id="nav-target" class="flex-1 overflow-y-auto pb-20"></nav>
     </aside>
+
+    <div id="mobile-fab" class="mobile-fab" onclick="ui.toggleSidebar()">
+        <span>📂</span> 目录
+    </div>
 
     <main class="main-content">
         <header class="p-4 bg-white border-b flex items-center justify-between sticky top-0 z-30 shadow-sm shrink-0">
@@ -311,9 +340,9 @@
 
         <div class="p-4 lg:p-8">
             <div id="view-welcome" class="text-center py-20">
-                <div class="text-9xl mb-8 animate-bounce">📚</div>
+                <div class="text-9xl mb-8 animate-bounce">🐘</div>
                 <h2 class="text-3xl font-black text-slate-800 mb-4">100词全量库已加载</h2>
-                <p class="text-slate-500 mb-10">点击左侧目录，开始您的泰语实战之旅。</p>
+                <p class="text-slate-500 mb-10">发音更精准，联想更地道。</p>
                 <button onclick="app.loadWord(0,0)" class="bg-blue-600 text-white px-12 py-4 rounded-2xl font-bold shadow-xl hover:bg-blue-700 transition">开始学习</button>
             </div>
 
@@ -329,20 +358,22 @@
                             <div class="mnem-word">...</div>
                             <div class="mnem-desc">...</div>
                         </div>
-                        <button onclick="app.speak(event)" class="mt-6 bg-blue-100 text-blue-700 border border-blue-200 px-8 py-3 rounded-full font-bold hover:bg-blue-200 transition btn-speak">🔊 朗读单词</button>
+                        <button onclick="app.speak(event)" class="mt-6 bg-blue-100 text-blue-700 border border-blue-200 px-8 py-3 rounded-full font-bold hover:bg-blue-200 transition btn-speak">
+                            🔊 朗读单词
+                        </button>
                     </div>
 
                     <div class="flex gap-4 w-full max-w-sm">
-                        <button onclick="app.prev()" class="flex-1 py-4 bg-white border border-slate-200 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 transition">上一个</button>
-                        <button onclick="app.next()" class="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl hover:bg-slate-800 transition">下一个</button>
+                        <button onclick="app.prev()" class="flex-1 py-4 bg-white border border-slate-200 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 transition btn-tap">上一个</button>
+                        <button onclick="app.next()" class="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl hover:bg-slate-800 transition btn-tap">下一个</button>
                     </div>
                 </div>
 
                 <div class="w-full lg:w-2/3 space-y-6">
                     <div class="bg-blue-600 text-white p-4 rounded-2xl shadow-md">
-                        <h3 class="text-lg font-black italic">实战场景拆解</h3>
+                        <h3 class="text-lg font-black italic">实战场景拆解 (点击朗读)</h3>
                     </div>
-                    <div id="sentences-box" class="space-y-4 pb-20"></div>
+                    <div id="sentences-box" class="space-y-4 pb-32"></div>
                 </div>
             </div>
         </div>
