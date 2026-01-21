@@ -3,53 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>泰轻松 Pro v31 - 国内安卓特供版</title>
+    <title>泰轻松 Pro v32 - 国内畅通版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #2563eb; }
         
-        /* === 1. 核心滚动修复 === */
-        /* 移动端：取消高度锁定，允许原生滚动 */
+        /* === 核心修复：还原原生滚动 === */
+        html { height: auto; min-height: 100%; }
         body { 
             font-family: system-ui, -apple-system, sans-serif; 
             background: #f8fafc;
             color: #334155;
-            /* 关键：让页面高度自然撑开，解决无法下滑问题 */
             min-height: 100vh;
+            /* 允许页面自由滚动，不再锁定高度 */
             overflow-y: auto !important; 
             -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* 电脑端：保持左右分栏布局 */
+        /* 电脑端才锁定布局 */
         @media (min-width: 1024px) {
-            body { height: 100vh; overflow: hidden; display: flex; }
-            .sidebar { position: relative; transform: none; width: 300px; box-shadow: none; z-index: 10; height: 100%; }
-            .main-content { height: 100%; overflow-y: auto; }
+            body { height: 100vh; overflow: hidden; flex-direction: row; }
+            .sidebar { position: relative; transform: none; width: 300px; height: 100%; }
+            .main-content { height: 100%; overflow-y: auto; padding-bottom: 0; }
             .mobile-fab { display: none !important; }
         }
         
-        /* 侧边栏（手机端抽屉） */
+        /* 手机端侧边栏 */
         .sidebar { 
             width: 85%; max-width: 320px; background: white; border-right: 1px solid #e2e8f0; 
             display: flex; flex-direction: column; shrink-0; 
             position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); 
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             z-index: 2000; box-shadow: 10px 0 25px -5px rgba(0,0,0,0.1);
-            height: 100%; /* 确保侧边栏占满屏幕高度 */
+            height: 100%;
         }
         .sidebar.open { transform: translateX(0); }
 
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1500; backdrop-filter: blur(2px); }
         .overlay.show { display: block; }
 
-        /* 主内容容器 */
+        /* 主内容区 */
         .main-content { 
-            flex: 1; display: flex; flex-direction: column; 
-            /* 关键：底部增加巨大留白，防止内容被底部按钮遮挡 */
-            padding-bottom: 120px; 
+            flex: 1; 
+            width: 100%;
+            /* 底部加长留白，确保最后的内容能划上来 */
+            padding-bottom: 150px; 
         }
 
-        /* UI 组件样式 */
+        /* 卡片与组件 */
         .nav-header { padding: 16px; background: #f1f5f9; font-weight: 900; color: #1e3a8a; font-size: 1rem; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
         .nav-item { padding: 14px 16px 14px 24px; font-size: 15px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #f1f5f9; color: #475569; display: block; }
         .nav-item.active { background: #eff6ff; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
@@ -57,7 +60,7 @@
         .static-card {
             background: linear-gradient(145deg, #ffffff, #f8fafc);
             border: 1px solid #e2e8f0; border-radius: 24px; padding: 24px;
-            text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.05);
             width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 8px; margin: 0 auto;
         }
         .card-thai { font-size: 3.5rem; font-weight: 900; color: #1e3a8a; line-height: 1.2; }
@@ -70,19 +73,19 @@
 
         /* 悬浮按钮 */
         .mobile-fab {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
             background: #1e3a8a; color: white;
             padding: 12px 30px; border-radius: 50px;
-            font-weight: bold; box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.5);
+            font-weight: bold; box-shadow: 0 8px 20px rgba(30, 58, 138, 0.4);
             z-index: 1000; display: flex; items-center; gap: 8px; cursor: pointer;
-            border: 2px solid rgba(255,255,255,0.2); white-space: nowrap;
+            border: 1px solid rgba(255,255,255,0.2); white-space: nowrap;
         }
 
         /* 提示条 */
         #toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.85); color: white; padding: 10px 24px;
-            border-radius: 50px; font-size: 14px; z-index: 3000;
+            background: rgba(0,0,0,0.85); color: white; padding: 8px 20px;
+            border-radius: 50px; font-size: 13px; z-index: 3000;
             display: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
     </style>
@@ -94,8 +97,8 @@
 <div id="overlay" class="overlay" onclick="ui.toggleSidebar()"></div>
 <aside class="sidebar">
     <div class="p-6 bg-blue-800 text-white shrink-0">
-        <h1 class="font-black text-xl tracking-tight">THAI EASY v31</h1>
-        <p class="text-xs text-blue-200 mt-1">国内安卓增强版</p>
+        <h1 class="font-black text-xl tracking-tight uppercase">Thai Easy v32</h1>
+        <p class="text-xs text-blue-200 mt-1">国内畅通版</p>
     </div>
     <nav id="nav-target" class="flex-1 overflow-y-auto pb-10"></nav>
 </aside>
@@ -113,10 +116,10 @@
     </header>
 
     <div class="p-4 lg:p-8">
-        <div id="view-welcome" class="text-center py-10">
+        <div id="view-welcome" class="text-center py-12">
             <div class="text-8xl mb-4">📢</div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">已切换国内线路</h2>
-            <p class="text-slate-500 text-sm mb-8">修复了安卓发音与页面卡顿问题</p>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">v32 国内线路已就绪</h2>
+            <p class="text-slate-500 text-sm mb-8">已修复安卓发音与滚动卡顿问题</p>
             <button onclick="app.loadWord(0,0)" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg active:scale-95 transition">开始学习</button>
         </div>
 
@@ -147,7 +150,7 @@
             <div class="w-full lg:w-2/3">
                 <div class="bg-blue-600 text-white p-4 rounded-xl shadow-md mb-4">
                     <h3 class="font-bold">实战场景拆解</h3>
-                    <p class="text-xs text-blue-100 opacity-80">点击下方喇叭图标播放整句</p>
+                    <p class="text-xs text-blue-100 opacity-80">点击下方喇叭图标播放</p>
                 </div>
                 <div id="sentences-box" class="space-y-4"></div>
             </div>
@@ -156,48 +159,66 @@
 </main>
 
 <script>
-    // === 2. 核心音频引擎 (国内专版) ===
+    // === 核心音频引擎 (国内百度百科通道) ===
     const AudioEngine = {
         play(text) {
-            this.showToast("正在加载音频...");
+            this.showToast("正在请求音频...");
 
-            // 方案 A: 百度 TTS (国内无需VPN，速度快)
-            // 这是一个公开接口，通常可以直接调用
-            const baiduUrl = `https://fanyi.baidu.com/gettts?lan=th&text=${encodeURIComponent(text)}&spd=3&source=web`;
-            
-            const audio = new Audio(baiduUrl);
-            
-            audio.oncanplay = () => {
-                this.showToast("🔊 播放中");
-                audio.play();
-            };
-            
-            audio.onerror = () => {
-                // 如果百度也挂了，尝试最后的保底：System API
-                console.log("Baidu failed, trying system...");
-                if ('speechSynthesis' in window) {
+            // 优先尝试系统发音 (部分安卓可能支持，先试一下)
+            if ('speechSynthesis' in window) {
+                const voices = window.speechSynthesis.getVoices();
+                // 检查是否有本地泰语包
+                const hasLocalVoice = voices.some(v => v.lang.includes('th'));
+                
+                if (hasLocalVoice) {
+                    window.speechSynthesis.cancel();
                     const msg = new SpeechSynthesisUtterance(text);
                     msg.lang = 'th-TH';
                     window.speechSynthesis.speak(msg);
-                    this.showToast("使用系统语音播放");
-                } else {
-                    this.showToast("❌ 无法播放，请检查网络");
+                    this.showToast("播放中 (本地)");
+                    return;
                 }
+            }
+
+            // 如果本地不行，使用百度百科公共接口 (TTS)
+            // 这个接口目前国内直连无障碍，无需API Key
+            // cuid=baike 是关键参数，lan=th 代表泰语
+            const baiduUrl = `https://tts.baidu.com/text2audio?cuid=baike&lan=th&ctp=1&pdt=301&vol=9&rate=32&per=0&tex=${encodeURIComponent(text)}`;
+            
+            const audio = new Audio(baiduUrl);
+            
+            audio.onplay = () => this.showToast("🔊 播放中");
+            
+            audio.onerror = (e) => {
+                console.error("Audio Error:", e);
+                this.showToast("❌ 播放失败，请检查网络");
             };
+
+            // 兼容性播放尝试
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    this.showToast("⚠️ 浏览器阻止了自动播放，请再点一次");
+                });
+            }
         },
 
+        timer: null,
         showToast(msg) {
             const t = document.getElementById('toast');
             t.innerText = msg;
             t.style.display = 'block';
-            // 防抖，避免连续点击闪烁
             if (this.timer) clearTimeout(this.timer);
-            this.timer = setTimeout(() => t.style.display = 'none', 1500);
+            this.timer = setTimeout(() => t.style.display = 'none', 2000);
         }
     };
 
-    // === 全量数据 (100词完整版) ===
-    // 为节省空间，此处展示前两个板块，实际使用时请保留之前的完整数据结构
+    // 预加载语音列表
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
+
+    // === 100词全量数据 ===
     const FULL_DATA = [
         {
             name: "第一章：社交生存", icon: "🤝",
@@ -378,18 +399,15 @@
                             <div class="brick">
                                 <div class="brick-th">${b.t}</div>
                                 <div class="brick-rd">${b.r}</div>
-                                <div class="brick-mn">${b.m}</div>
                             </div>
                         `).join('')}
                     </div>
                 </div>
             `}).join('');
 
-            // 手机端优化：收起侧边栏并回顶
             if (window.innerWidth < 1024) {
                 ui.toggleSidebar(false);
-                // 修复：由于 body 现在可滚动，使用 window.scrollTo
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo(0, 0); 
             }
         },
 
