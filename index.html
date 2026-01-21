@@ -3,11 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>泰轻松 Pro v28 - 双引擎发音版</title>
+    <title>泰轻松 Pro v29 - 安卓原生修复版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #2563eb; }
-        body { font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; min-height: 100dvh; display: flex; overflow: hidden; background: #f8fafc; }
+        
+        /* 1. 核心滚动修复：手机端使用原生滚动，电脑端使用布局滚动 */
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            background: #f8fafc; 
+            /* 手机端允许 body 滚动 */
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 电脑端布局锁定 */
+        @media (min-width: 1024px) {
+            body { height: 100vh; overflow: hidden; display: flex; }
+            .main-content { height: 100%; overflow-y: auto; }
+        }
         
         /* 侧边栏 */
         .sidebar { 
@@ -15,7 +29,7 @@
             display: flex; flex-direction: column; shrink-0; 
             position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); 
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            z-index: 60; box-shadow: 10px 0 25px -5px rgba(0,0,0,0.1);
+            z-index: 999; box-shadow: 10px 0 25px -5px rgba(0,0,0,0.1);
         }
         .sidebar.open { transform: translateX(0); }
         
@@ -24,14 +38,22 @@
             .mobile-fab { display: none !important; } 
         }
 
-        .main-content { flex: 1; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; position: relative; }
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 50; backdrop-filter: blur(2px); }
+        /* 主内容区 */
+        .main-content { 
+            flex: 1; display: flex; flex-direction: column; 
+            /* 手机端底部留白，防止被按钮挡住 */
+            padding-bottom: 120px; 
+        }
+        
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 900; backdrop-filter: blur(2px); }
         .overlay.show { display: block; }
 
+        /* 导航 */
         .nav-header { padding: 16px; background: #f1f5f9; font-weight: 900; color: #1e3a8a; font-size: 1rem; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
         .nav-item { padding: 14px 16px 14px 24px; font-size: 15px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #f1f5f9; color: #475569; display: block; }
         .nav-item.active { background: #eff6ff; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
 
+        /* 积木 */
         .brick-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .brick { 
             background: white; border: 1px solid #cbd5e1; border-radius: 12px; 
@@ -42,11 +64,12 @@
         .brick-rd { color: #dc2626; font-size: 0.8rem; font-weight: bold; margin: 3px 0; }
         .brick-mn { color: #64748b; font-size: 0.75rem; }
 
+        /* 卡片 */
         .static-card {
             background: linear-gradient(145deg, #ffffff, #f8fafc);
             border: 1px solid #e2e8f0; border-radius: 24px; padding: 24px;
             text-align: center; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
-            width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 8px;
+            width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 8px; margin: 0 auto;
         }
         .card-thai { font-size: 3.5rem; font-weight: 900; color: #1e3a8a; letter-spacing: -1px; line-height: 1.2; }
         .card-roma { font-size: 1.1rem; color: #94a3b8; font-style: italic; margin-bottom: 4px; }
@@ -59,12 +82,13 @@
         .btn-speak:active { transform: scale(0.95); background-color: #dbeafe; }
         .btn-tap:active { transform: scale(0.96); opacity: 0.9; }
 
+        /* 悬浮按钮 */
         .mobile-fab {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             background: #1e3a8a; color: white;
             padding: 12px 30px; border-radius: 50px;
             font-weight: bold; box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.5);
-            z-index: 40; display: flex; items-center; gap: 8px; cursor: pointer;
+            z-index: 1000; display: flex; items-center; gap: 8px; cursor: pointer;
             border: 2px solid rgba(255,255,255,0.2);
         }
 
@@ -75,45 +99,44 @@
 <body>
 
 <script>
-    // === 核心音频修复逻辑 ===
+    // === 2. 安卓音频终极修复 ===
     const AudioEngine = {
+        init() {
+            // 某些安卓机需要先加载 voice 列表
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.getVoices();
+            }
+        },
         play(text) {
-            // 尝试清除正在播放的
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
+            if (!('speechSynthesis' in window)) {
+                alert("您的浏览器不支持语音朗读");
+                return;
             }
 
-            // 1. 优先尝试本地高品质发音 (iOS/电脑通常支持)
-            let useLocal = false;
-            if ('speechSynthesis' in window) {
-                const voices = window.speechSynthesis.getVoices();
-                // 检查是否有泰语包
-                const thaiVoice = voices.find(v => v.lang.includes('th'));
-                if (thaiVoice) {
-                    useLocal = true;
-                    const msg = new SpeechSynthesisUtterance(text);
-                    msg.lang = 'th-TH';
-                    msg.voice = thaiVoice;
-                    msg.rate = 0.9; // 稍微放慢一点
-                    window.speechSynthesis.speak(msg);
-                    return; // 本地成功，退出
-                }
-            }
+            // 强制停止当前正在播放的音频（解决安卓队列卡死问题）
+            window.speechSynthesis.cancel();
 
-            // 2. 安卓/无语音包时的网络候补方案 (使用 Google 接口)
-            if (!useLocal) {
-                // 创建一个临时的 Audio 对象
-                // encodeURIComponent 确保泰文能被正确编码传输
-                const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=th&client=tw-ob`;
-                const sound = new Audio(url);
-                sound.play().catch(e => {
-                    alert("播放失败：请检查网络连接（安卓手机需要联网才能获取泰语发音）");
-                });
-            }
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = 'th-TH'; // 强制指定泰语
+            msg.rate = 0.9;     // 语速稍慢
+            msg.volume = 1.0;   // 最大音量
+
+            // 尝试获取泰语发音包，如果没有，系统通常会回退到默认网络引擎
+            const voices = window.speechSynthesis.getVoices();
+            const thVoice = voices.find(v => v.lang === 'th-TH' || v.lang === 'th');
+            if (thVoice) msg.voice = thVoice;
+
+            // 延时一小会儿播放，给系统缓冲时间
+            setTimeout(() => {
+                window.speechSynthesis.speak(msg);
+            }, 50);
         }
     };
 
-    // === 100% 完整数据 ===
+    // 初始化音频引擎
+    window.addEventListener('load', AudioEngine.init);
+
+    // === 全量数据 ===
     const FULL_DATA = [
         {
             name: "第一章：社交生存", icon: "🤝",
@@ -280,7 +303,7 @@
             const box = document.getElementById('sentences-box');
             box.innerHTML = data.sentences.map(s => {
                 const fullSentence = s.bricks.map(b => b.t).join('');
-                // encodeURIComponent 确保文本传输正确
+                // 修复单引号在 onclick 中的转义问题
                 const safeSentence = fullSentence.replace(/'/g, "\\'"); 
                 return `
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
@@ -302,9 +325,12 @@
                 </div>
             `}).join('');
 
+            // 手机端：点击后收起侧边栏，并回到顶部
             if (window.innerWidth < 1024) {
                 ui.toggleSidebar(false);
-                document.querySelector('.main-content').scrollTop = 0;
+                // 滚动回顶部，防止切词后停留在页面下方
+                // 注意：这里需要滚动 window 本身（因为 body 设置了 auto）
+                window.scrollTo(0, 0); 
             }
         },
 
@@ -341,6 +367,7 @@
         }
     };
 
+    // 启动
     window.onload = () => app.renderNav();
 </script>
 
@@ -348,7 +375,7 @@
 
     <aside class="sidebar shadow-xl md:shadow-none">
         <div class="p-6 bg-blue-800 text-white shrink-0">
-            <h1 class="font-black text-xl italic tracking-tighter uppercase">Thai Easy Pro v28</h1>
+            <h1 class="font-black text-xl italic tracking-tighter uppercase">Thai Easy Pro v29</h1>
         </div>
         <nav id="nav-target" class="flex-1 overflow-y-auto pb-20"></nav>
     </aside>
