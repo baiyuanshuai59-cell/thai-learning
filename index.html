@@ -3,160 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>泰轻松 Pro v30 - 安卓强力兼容版</title>
+    <title>泰轻松 Pro v31 - 国内安卓特供版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #2563eb; }
-        body { font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; min-height: 100dvh; display: flex; overflow: hidden; background: #f8fafc; }
         
-        /* 侧边栏 */
+        /* === 1. 核心滚动修复 === */
+        /* 移动端：取消高度锁定，允许原生滚动 */
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            background: #f8fafc;
+            color: #334155;
+            /* 关键：让页面高度自然撑开，解决无法下滑问题 */
+            min-height: 100vh;
+            overflow-y: auto !important; 
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 电脑端：保持左右分栏布局 */
+        @media (min-width: 1024px) {
+            body { height: 100vh; overflow: hidden; display: flex; }
+            .sidebar { position: relative; transform: none; width: 300px; box-shadow: none; z-index: 10; height: 100%; }
+            .main-content { height: 100%; overflow-y: auto; }
+            .mobile-fab { display: none !important; }
+        }
+        
+        /* 侧边栏（手机端抽屉） */
         .sidebar { 
             width: 85%; max-width: 320px; background: white; border-right: 1px solid #e2e8f0; 
             display: flex; flex-direction: column; shrink-0; 
             position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); 
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            z-index: 999; box-shadow: 10px 0 25px -5px rgba(0,0,0,0.1);
+            z-index: 2000; box-shadow: 10px 0 25px -5px rgba(0,0,0,0.1);
+            height: 100%; /* 确保侧边栏占满屏幕高度 */
         }
         .sidebar.open { transform: translateX(0); }
-        
-        @media (min-width: 1024px) {
-            .sidebar { position: relative; transform: none; width: 300px; box-shadow: none; z-index: 10; }
-            .mobile-fab { display: none !important; } 
-        }
 
-        /* 主内容区 - 原生滚动 */
-        .main-content { 
-            flex: 1; display: flex; flex-direction: column; 
-            overflow-y: auto; -webkit-overflow-scrolling: touch;
-            padding-bottom: 150px; /* 底部留白防止遮挡 */
-        }
-        
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 900; backdrop-filter: blur(2px); }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1500; backdrop-filter: blur(2px); }
         .overlay.show { display: block; }
 
+        /* 主内容容器 */
+        .main-content { 
+            flex: 1; display: flex; flex-direction: column; 
+            /* 关键：底部增加巨大留白，防止内容被底部按钮遮挡 */
+            padding-bottom: 120px; 
+        }
+
+        /* UI 组件样式 */
         .nav-header { padding: 16px; background: #f1f5f9; font-weight: 900; color: #1e3a8a; font-size: 1rem; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
         .nav-item { padding: 14px 16px 14px 24px; font-size: 15px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #f1f5f9; color: #475569; display: block; }
         .nav-item.active { background: #eff6ff; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
 
-        .brick-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-        .brick { 
-            background: white; border: 1px solid #cbd5e1; border-radius: 12px; 
-            padding: 8px 10px; text-align: center; flex: 1; min-width: 70px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: center;
-        }
-        .brick-th { color: #1e40af; font-weight: 800; font-size: 1rem; line-height: 1.2; }
-        .brick-rd { color: #dc2626; font-size: 0.8rem; font-weight: bold; margin: 3px 0; }
-        .brick-mn { color: #64748b; font-size: 0.75rem; }
-
         .static-card {
             background: linear-gradient(145deg, #ffffff, #f8fafc);
             border: 1px solid #e2e8f0; border-radius: 24px; padding: 24px;
-            text-align: center; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+            text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 8px; margin: 0 auto;
         }
-        .card-thai { font-size: 3.5rem; font-weight: 900; color: #1e3a8a; letter-spacing: -1px; line-height: 1.2; }
-        .card-roma { font-size: 1.1rem; color: #94a3b8; font-style: italic; margin-bottom: 4px; }
+        .card-thai { font-size: 3.5rem; font-weight: 900; color: #1e3a8a; line-height: 1.2; }
         .card-mean { font-size: 2rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
+        .mnemonic-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px; padding: 12px; margin-top: 8px; }
         
-        .mnemonic-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 16px; padding: 16px; margin-top: 8px; }
-        .mnem-word { font-size: 2rem; font-weight: 900; color: #ea580c; margin: 4px 0; letter-spacing: 1px; }
-        .mnem-desc { font-size: 0.95rem; color: #475569; font-style: italic; line-height: 1.5; }
+        .brick { background: white; border: 1px solid #cbd5e1; border-radius: 10px; padding: 8px; text-align: center; flex: 1; min-width: 60px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .brick-th { color: #1e40af; font-weight: 800; font-size: 1rem; }
+        .brick-rd { color: #dc2626; font-size: 0.8rem; font-weight: bold; }
 
-        .btn-speak:active { transform: scale(0.95); background-color: #dbeafe; }
-        .btn-tap:active { transform: scale(0.96); opacity: 0.9; }
-
+        /* 悬浮按钮 */
         .mobile-fab {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             background: #1e3a8a; color: white;
             padding: 12px 30px; border-radius: 50px;
             font-weight: bold; box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.5);
             z-index: 1000; display: flex; items-center; gap: 8px; cursor: pointer;
-            border: 2px solid rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.2); white-space: nowrap;
         }
 
-        /* 状态提示条 */
+        /* 提示条 */
         #toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px;
-            border-radius: 30px; font-size: 14px; z-index: 2000;
-            display: none; white-space: nowrap;
+            background: rgba(0,0,0,0.85); color: white; padding: 10px 24px;
+            border-radius: 50px; font-size: 14px; z-index: 3000;
+            display: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
     </style>
 </head>
 <body>
 
 <div id="toast"></div>
 
+<div id="overlay" class="overlay" onclick="ui.toggleSidebar()"></div>
+<aside class="sidebar">
+    <div class="p-6 bg-blue-800 text-white shrink-0">
+        <h1 class="font-black text-xl tracking-tight">THAI EASY v31</h1>
+        <p class="text-xs text-blue-200 mt-1">国内安卓增强版</p>
+    </div>
+    <nav id="nav-target" class="flex-1 overflow-y-auto pb-10"></nav>
+</aside>
+
+<div id="mobile-fab" class="mobile-fab" onclick="ui.toggleSidebar()">
+    <span>📂</span> 打开目录
+</div>
+
+<main class="main-content">
+    <header class="p-4 bg-white border-b flex items-center justify-between sticky top-0 z-20 shadow-sm">
+        <div class="flex items-center gap-3">
+            <button onclick="ui.toggleSidebar()" class="p-2 bg-slate-100 rounded-lg md:hidden">☰</button>
+            <span id="header-title" class="font-bold text-slate-700 truncate max-w-[200px]">请选择单词</span>
+        </div>
+    </header>
+
+    <div class="p-4 lg:p-8">
+        <div id="view-welcome" class="text-center py-10">
+            <div class="text-8xl mb-4">📢</div>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">已切换国内线路</h2>
+            <p class="text-slate-500 text-sm mb-8">修复了安卓发音与页面卡顿问题</p>
+            <button onclick="app.loadWord(0,0)" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg active:scale-95 transition">开始学习</button>
+        </div>
+
+        <div id="view-study" class="hidden flex flex-col lg:flex-row gap-6 items-start">
+            
+            <div class="w-full lg:w-1/3 flex flex-col items-center">
+                <div class="static-card">
+                    <div class="card-thai" id="d-th">...</div>
+                    <div class="card-roma text-slate-400 italic" id="d-rd">...</div>
+                    <div class="card-mean" id="d-zh">...</div>
+                    <div class="w-full h-px bg-slate-100 my-2"></div>
+                    <div class="mnemonic-box">
+                        <div class="text-xs font-bold text-orange-600 uppercase mb-1">中文联想记忆</div>
+                        <div class="mnem-word text-2xl font-black text-orange-500" id="d-mnem">...</div>
+                        <div class="mnem-desc text-sm text-slate-500" id="d-desc">...</div>
+                    </div>
+                    <button onclick="app.speak(event)" class="mt-4 bg-blue-50 text-blue-600 border border-blue-100 px-6 py-3 rounded-full font-bold active:bg-blue-100 transition flex justify-center items-center gap-2">
+                        <span>🔊</span> 听单词发音
+                    </button>
+                </div>
+
+                <div class="flex gap-3 w-full max-w-sm mt-4">
+                    <button onclick="app.prev()" class="flex-1 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-500 active:bg-slate-50">上一个</button>
+                    <button onclick="app.next()" class="flex-1 py-3 bg-slate-900 text-white rounded-xl font-bold shadow-lg active:bg-slate-800">下一个</button>
+                </div>
+            </div>
+
+            <div class="w-full lg:w-2/3">
+                <div class="bg-blue-600 text-white p-4 rounded-xl shadow-md mb-4">
+                    <h3 class="font-bold">实战场景拆解</h3>
+                    <p class="text-xs text-blue-100 opacity-80">点击下方喇叭图标播放整句</p>
+                </div>
+                <div id="sentences-box" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+</main>
+
 <script>
-    // === 3. 终极音频引擎 (本地 + 云端双保险) ===
+    // === 2. 核心音频引擎 (国内专版) ===
     const AudioEngine = {
         play(text) {
-            // 方案 A: 尝试系统原生发音 (Web Speech API)
-            if ('speechSynthesis' in window) {
-                // 强制取消之前的播放
-                window.speechSynthesis.cancel();
-                
-                const msg = new SpeechSynthesisUtterance(text);
-                msg.lang = 'th-TH'; // 泰语
-                msg.rate = 0.9;
-                
-                // 关键：检测是否真的有声音发出
-                let soundEmitted = false;
-                msg.onstart = () => { soundEmitted = true; };
-                
-                // 错误处理：如果系统不支持或报错，转方案 B
-                msg.onerror = (e) => {
-                    console.log("System TTS failed, switching to Cloud TTS...");
-                    this.playCloud(text); 
-                };
+            this.showToast("正在加载音频...");
 
-                // 获取语音列表（安卓有时需要这一步激活）
-                const voices = window.speechSynthesis.getVoices();
-                if(voices.length > 0) {
+            // 方案 A: 百度 TTS (国内无需VPN，速度快)
+            // 这是一个公开接口，通常可以直接调用
+            const baiduUrl = `https://fanyi.baidu.com/gettts?lan=th&text=${encodeURIComponent(text)}&spd=3&source=web`;
+            
+            const audio = new Audio(baiduUrl);
+            
+            audio.oncanplay = () => {
+                this.showToast("🔊 播放中");
+                audio.play();
+            };
+            
+            audio.onerror = () => {
+                // 如果百度也挂了，尝试最后的保底：System API
+                console.log("Baidu failed, trying system...");
+                if ('speechSynthesis' in window) {
+                    const msg = new SpeechSynthesisUtterance(text);
+                    msg.lang = 'th-TH';
                     window.speechSynthesis.speak(msg);
-                    // 只有在确定浏览器支持时才不立即转云端
-                    // 但很多安卓浏览器假装支持实则没声音，所以我们还是做一个延时检查
-                    return; 
+                    this.showToast("使用系统语音播放");
+                } else {
+                    this.showToast("❌ 无法播放，请检查网络");
                 }
-            }
-            
-            // 如果代码跑到这里，说明系统完全不支持，直接方案 B
-            this.playCloud(text);
-        },
-
-        // 方案 B: 云端 MP3 播放 (100% 兼容，但需要网络)
-        playCloud(text) {
-            // 显示提示
-            this.showToast("正在请求云端发音...");
-            
-            // 使用 Google 翻译的 TTS 接口
-            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=th&client=tw-ob`;
-            
-            const audio = new Audio(url);
-            audio.onloadeddata = () => this.showToast("播放中 🔊");
-            audio.onerror = () => this.showToast("⚠️ 网络错误或需要VPN");
-            audio.play().catch(e => {
-                this.showToast("❌ 无法播放，请检查网络");
-            });
+            };
         },
 
         showToast(msg) {
             const t = document.getElementById('toast');
             t.innerText = msg;
             t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 2000);
+            // 防抖，避免连续点击闪烁
+            if (this.timer) clearTimeout(this.timer);
+            this.timer = setTimeout(() => t.style.display = 'none', 1500);
         }
     };
 
-    // 预加载语音列表
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-    }
-
-    // === 全量数据 ===
+    // === 全量数据 (100词完整版) ===
+    // 为节省空间，此处展示前两个板块，实际使用时请保留之前的完整数据结构
     const FULL_DATA = [
         {
             name: "第一章：社交生存", icon: "🤝",
@@ -314,16 +355,15 @@
             const data = FULL_DATA[mi].words[wi];
             document.getElementById('header-title').innerText = `${FULL_DATA[mi].name} > ${data.mean}`;
             
-            document.querySelector('.card-thai').innerText = data.t;
-            document.querySelector('.card-roma').innerText = data.r;
-            document.querySelector('.card-mean').innerText = data.mean;
-            document.querySelector('.mnem-word').innerText = data.m;
-            document.querySelector('.mnem-desc').innerText = data.desc;
+            document.getElementById('d-th').innerText = data.t;
+            document.getElementById('d-rd').innerText = data.r;
+            document.getElementById('d-zh').innerText = data.mean;
+            document.getElementById('d-mnem').innerText = data.m;
+            document.getElementById('d-desc').innerText = data.desc;
 
             const box = document.getElementById('sentences-box');
             box.innerHTML = data.sentences.map(s => {
                 const fullSentence = s.bricks.map(b => b.t).join('');
-                // 修复单引号在 onclick 中的转义问题
                 const safeSentence = fullSentence.replace(/'/g, "\\'"); 
                 return `
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
@@ -345,10 +385,11 @@
                 </div>
             `}).join('');
 
-            // 手机端：点击后收起侧边栏，并回到顶部
+            // 手机端优化：收起侧边栏并回顶
             if (window.innerWidth < 1024) {
                 ui.toggleSidebar(false);
-                window.scrollTo(0, 0); 
+                // 修复：由于 body 现在可滚动，使用 window.scrollTo
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         },
 
@@ -387,67 +428,5 @@
 
     window.onload = () => app.renderNav();
 </script>
-
-    <div id="overlay" class="overlay" onclick="ui.toggleSidebar()"></div>
-
-    <aside class="sidebar shadow-xl md:shadow-none">
-        <div class="p-6 bg-blue-800 text-white shrink-0">
-            <h1 class="font-black text-xl italic tracking-tighter uppercase">Thai Easy Pro v30</h1>
-        </div>
-        <nav id="nav-target" class="flex-1 overflow-y-auto pb-20"></nav>
-    </aside>
-
-    <div id="mobile-fab" class="mobile-fab" onclick="ui.toggleSidebar()">
-        <span>📂</span> 目录
-    </div>
-
-    <main class="main-content">
-        <header class="p-4 bg-white border-b flex items-center justify-between sticky top-0 z-30 shadow-sm shrink-0">
-            <div class="flex items-center gap-4">
-                <button onclick="ui.toggleSidebar()" class="p-2 bg-slate-100 rounded-lg md:hidden">☰</button>
-                <span id="header-title" class="font-bold text-slate-700 italic">请在左侧选择单词</span>
-            </div>
-        </header>
-
-        <div class="p-4 lg:p-8">
-            <div id="view-welcome" class="text-center py-20">
-                <div class="text-9xl mb-8 animate-bounce">🐘</div>
-                <h2 class="text-3xl font-black text-slate-800 mb-4">100词全量库已加载</h2>
-                <p class="text-slate-500 mb-10">双引擎发音：原生+云端，修复安卓兼容性。</p>
-                <button onclick="app.loadWord(0,0)" class="bg-blue-600 text-white px-12 py-4 rounded-2xl font-bold shadow-xl hover:bg-blue-700 transition">开始学习</button>
-            </div>
-
-            <div id="view-study" class="hidden flex flex-col lg:flex-row gap-8 items-start">
-                <div class="w-full lg:w-1/3 flex flex-col items-center relative lg:sticky lg:top-4">
-                    <div class="static-card mb-6">
-                        <div class="card-thai">...</div>
-                        <div class="card-roma">...</div>
-                        <div class="card-mean">...</div>
-                        <div class="w-full h-px bg-gray-200 my-2"></div>
-                        <div class="mnemonic-box">
-                            <div class="mnem-title">Chinese Mnemonic</div>
-                            <div class="mnem-word">...</div>
-                            <div class="mnem-desc">...</div>
-                        </div>
-                        <button onclick="app.speak(event)" class="mt-6 bg-blue-100 text-blue-700 border border-blue-200 px-8 py-3 rounded-full font-bold hover:bg-blue-200 transition btn-speak">
-                            🔊 朗读单词
-                        </button>
-                    </div>
-
-                    <div class="flex gap-4 w-full max-w-sm">
-                        <button onclick="app.prev()" class="flex-1 py-4 bg-white border border-slate-200 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 transition btn-tap">上一个</button>
-                        <button onclick="app.next()" class="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-xl hover:bg-slate-800 transition btn-tap">下一个</button>
-                    </div>
-                </div>
-
-                <div class="w-full lg:w-2/3 space-y-6">
-                    <div class="bg-blue-600 text-white p-4 rounded-2xl shadow-md">
-                        <h3 class="text-lg font-black italic">实战场景拆解 (点击朗读)</h3>
-                    </div>
-                    <div id="sentences-box" class="space-y-4"></div>
-                </div>
-            </div>
-        </div>
-    </main>
 </body>
 </html>
