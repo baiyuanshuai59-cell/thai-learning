@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
-    <title>泰轻松 Pro v37 - 尊享直连版</title>
+    <title>泰轻松 Pro v38 - 绿色通道版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #2563eb; }
@@ -15,7 +15,7 @@
             font-family: system-ui, -apple-system, sans-serif; 
             background: #f8fafc; color: #334155;
             min-height: 100vh; 
-            overflow-y: auto !important; /* 强制原生滚动 */
+            overflow-y: auto !important;
             -webkit-overflow-scrolling: touch;
             display: flex; flex-direction: column;
         }
@@ -36,7 +36,7 @@
             transform: translateX(-100%); 
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             z-index: 2000; box-shadow: 10px 0 25px -5px rgba(0,0,0,0.1);
-            height: 100%; pointer-events: none; /* 隐藏时防误触 */
+            height: 100%; pointer-events: none;
         }
         .sidebar.open { transform: translateX(0); pointer-events: auto; }
 
@@ -89,8 +89,8 @@
 <div id="overlay" class="overlay" onclick="ui.toggleSidebar()"></div>
 <aside class="sidebar">
     <div class="p-6 bg-blue-800 text-white shrink-0">
-        <h1 class="font-black text-xl tracking-tight uppercase">Thai Easy v37</h1>
-        <p class="text-xs text-blue-200 mt-1">尊享直连版</p>
+        <h1 class="font-black text-xl tracking-tight uppercase">Thai Easy v38</h1>
+        <p class="text-xs text-blue-200 mt-1">绿色通道版</p>
     </div>
     <nav id="nav-target" class="flex-1 overflow-y-auto pb-10"></nav>
 </aside>
@@ -109,9 +109,9 @@
 
     <div class="p-4 lg:p-8" id="content-area">
         <div id="view-welcome" class="text-center py-12">
-            <div class="text-8xl mb-4">🚀</div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">授权已激活</h2>
-            <p class="text-slate-500 text-sm mb-8">百度官方高速语音通道 Ready</p>
+            <div class="text-8xl mb-4">🐘</div>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">泰轻松 Pro v38</h2>
+            <p class="text-slate-500 text-sm mb-8">线路已切换至：百度翻译网页通道 (Th)</p>
             <button onclick="app.loadWord(0,0)" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg active:scale-95 transition">开始学习</button>
         </div>
 
@@ -150,35 +150,36 @@
 </main>
 
 <script>
-    // ==============================================
-    // 您的百度专属 Token (已植入)
-    const BAIDU_TOKEN = "24.d0351794c7788a65f82b142ad2e5e74e.2592000.1771624799.282335-121905754"; 
-    // ==============================================
-
     const AudioEngine = {
         play(text) {
             const player = document.getElementById('global-player');
-            this.showToast("正在加载...");
+            this.showToast("正在请求...");
 
-            // 预热：先播放一个空操作，激活安卓音频通道
+            // 预热：让安卓浏览器知道我们要放声音了
             player.play().catch(() => {});
 
-            // 百度官方 API 链接构建
-            // vol=9(最大音量), per=0(女声, 可改1为男声), spd=5(语速)
-            const url = `https://tsn.baidu.com/text2audio?tex=${encodeURIComponent(text)}&lan=th&cuid=thai-app-vip&ctp=1&tok=${BAIDU_TOKEN}&vol=9&per=0&spd=4`;
+            // 线路1：百度翻译网页接口 (国内速度最快，支持泰语，需 no-referrer)
+            const baiduUrl = `https://fanyi.baidu.com/gettts?lan=th&text=${encodeURIComponent(text)}&spd=3&source=web`;
             
-            player.src = url;
+            // 线路2：微软 Bing 接口 (备用)
+            const bingUrl = `https://www.bing.com/tfettts?isVertical=1&isAudio=1&text=${encodeURIComponent(text)}&setLang=th-TH`;
+
+            // 尝试播放
+            player.src = baiduUrl;
             
             player.oncanplay = () => {
-                this.showToast("🔊 播放中");
-                player.play().catch(e => {
-                    this.showToast("⚠️ 请点击重试");
-                });
+                this.showToast("🔊 播放中 (百度线路)");
+                player.play();
             };
             
-            player.onerror = (e) => {
-                console.error(e);
-                this.showToast("❌ Token可能过期或网络限制");
+            player.onerror = () => {
+                console.log("Baidu Web failed, trying Bing...");
+                this.showToast("切换线路...");
+                // 失败后切到 Bing
+                player.src = bingUrl;
+                player.play().catch(e => {
+                    this.showToast("❌ 无法连接音频服务器");
+                });
             };
         },
 
@@ -192,7 +193,6 @@
         }
     };
 
-    // === 全量数据 (100词) ===
     const FULL_DATA = [
         {
             name: "第一章：社交生存", icon: "🤝",
@@ -371,7 +371,6 @@
         closeSidebar() { document.querySelector('.sidebar').classList.remove('open'); document.querySelector('.overlay').classList.remove('show'); }
     };
 
-    // 强制初始化
     app.renderNav();
 </script>
 </body>
