@@ -4,23 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
-    <title>泰轻松 Pro v45 - 最终极简版</title>
+    <title>泰轻松 Pro v46 - 智能切片版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --primary: #0ea5e9; /* 换个清爽蓝 */ }
+        :root { --primary: #c026d3; /* 紫红色 */ }
         
+        /* 1. 基础设置 */
         html { height: auto; min-height: 100%; }
         body { 
             font-family: system-ui, -apple-system, sans-serif; 
-            background: #f0f9ff; color: #334155;
-            min-height: 100vh; overflow-y: auto !important;
+            background: #fdf4ff; color: #334155;
+            min-height: 100vh; 
+            overflow-y: auto !important;
             -webkit-overflow-scrolling: touch;
             display: flex; flex-direction: column;
         }
 
         @media (min-width: 1024px) {
             body { height: 100vh; overflow: hidden; flex-direction: row; }
-            .sidebar { position: relative; transform: none; width: 300px; height: 100%; box-shadow: none; border-right: 1px solid #bae6fd;}
+            .sidebar { position: relative; transform: none; width: 300px; height: 100%; box-shadow: none; border-right: 1px solid #f0abfc;}
             .main-content { height: 100%; overflow-y: auto; padding-bottom: 0; }
             .mobile-fab { display: none !important; }
         }
@@ -41,36 +43,38 @@
 
         .main-content { flex: 1; width: 100%; padding-bottom: 160px; }
 
-        .nav-header { padding: 16px; background: #e0f2fe; font-weight: 900; color: #0369a1; font-size: 1rem; border-bottom: 1px solid #bae6fd; position: sticky; top: 0; z-index: 10; }
-        .nav-item { padding: 14px 20px; font-size: 15px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #f0f9ff; color: #475569; display: block; background: #fff; }
-        .nav-item.active { background: #f0f9ff; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
+        .nav-header { padding: 16px; background: #fae8ff; font-weight: 900; color: #86198f; font-size: 1rem; border-bottom: 1px solid #f0abfc; position: sticky; top: 0; z-index: 10; }
+        .nav-item { padding: 14px 20px; font-size: 15px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #fdf4ff; color: #475569; display: block; background: #fff; }
+        .nav-item:active { background: #fdf4ff; }
+        .nav-item.active { background: #fdf4ff; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
 
         .static-card {
-            background: white; border: 1px solid #bae6fd; border-radius: 24px; padding: 24px;
-            text-align: center; box-shadow: 0 4px 20px rgba(14, 165, 233, 0.05);
+            background: white; border: 1px solid #f0abfc; border-radius: 24px; padding: 24px;
+            text-align: center; box-shadow: 0 4px 20px rgba(192, 38, 211, 0.05);
             width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 8px; margin: 0 auto;
         }
-        .card-thai { font-size: 3.5rem; font-weight: 900; color: #0369a1; line-height: 1.2; }
+        .card-thai { font-size: 3.5rem; font-weight: 900; color: #86198f; line-height: 1.2; }
         .card-mean { font-size: 2rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
-        .mnemonic-box { background: #f0f9ff; border: 1px solid #7dd3fc; border-radius: 12px; padding: 12px; margin-top: 8px; }
+        .mnemonic-box { background: #fdf4ff; border: 1px solid #e879f9; border-radius: 12px; padding: 12px; margin-top: 8px; }
         
         .brick { background: white; border: 1px solid #cbd5e1; border-radius: 10px; padding: 8px; text-align: center; flex: 1; min-width: 65px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s; }
-        .brick:active { transform: scale(0.95); background: #f0f9ff; }
-        .brick-th { color: #0369a1; font-weight: 800; font-size: 1rem; }
+        /* 播放时的高亮样式 */
+        .brick.active-word { background: #fef08a; border-color: #eab308; transform: scale(1.05); }
+        .brick-th { color: #86198f; font-weight: 800; font-size: 1rem; }
         .brick-rd { color: #dc2626; font-size: 0.8rem; font-weight: bold; }
 
         .mobile-fab {
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-            background: #0ea5e9; color: white; padding: 12px 30px; border-radius: 50px;
-            font-weight: bold; box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+            background: #c026d3; color: white; padding: 12px 30px; border-radius: 50px;
+            font-weight: bold; box-shadow: 0 8px 20px rgba(192, 38, 211, 0.4);
             z-index: 1000; display: flex; items-center; gap: 8px; cursor: pointer;
             border: 1px solid rgba(255,255,255,0.2); white-space: nowrap; pointer-events: auto;
         }
 
         #toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.85); color: white; padding: 10px 24px;
-            border-radius: 50px; font-size: 14px; z-index: 3000;
+            background: rgba(0,0,0,0.85); color: white; padding: 8px 20px;
+            border-radius: 50px; font-size: 13px; z-index: 3000;
             display: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
     </style>
@@ -78,13 +82,14 @@
 <body>
 
 <div id="toast"></div>
-<audio id="global-player" style="display:none;" controls></audio>
+
+<audio id="warmup-player" style="display:none;"></audio>
 
 <div id="overlay" class="overlay" onclick="ui.toggleSidebar()"></div>
 <aside class="sidebar">
-    <div class="p-6 bg-sky-600 text-white shrink-0">
-        <h1 class="font-black text-xl tracking-tight uppercase">Thai Easy v45</h1>
-        <p class="text-xs text-sky-100 mt-1">有道稳定直连版</p>
+    <div class="p-6 bg-fuchsia-700 text-white shrink-0">
+        <h1 class="font-black text-xl tracking-tight uppercase">Thai Easy v46</h1>
+        <p class="text-xs text-fuchsia-200 mt-1">智能切片引擎</p>
     </div>
     <nav id="nav-target" class="flex-1 overflow-y-auto pb-10"></nav>
 </aside>
@@ -94,9 +99,9 @@
 </div>
 
 <main class="main-content">
-    <header class="p-4 bg-white border-b border-sky-100 flex items-center justify-between sticky top-0 z-20 shadow-sm">
+    <header class="p-4 bg-white border-b border-fuchsia-100 flex items-center justify-between sticky top-0 z-20 shadow-sm">
         <div class="flex items-center gap-3">
-            <button onclick="ui.toggleSidebar()" class="p-2 bg-sky-50 text-sky-600 rounded-lg md:hidden">☰</button>
+            <button onclick="ui.toggleSidebar()" class="p-2 bg-fuchsia-50 text-fuchsia-600 rounded-lg md:hidden">☰</button>
             <span id="header-title" class="font-bold text-slate-700 truncate max-w-[200px]">请选择单词</span>
         </div>
     </header>
@@ -104,9 +109,9 @@
     <div class="p-4 lg:p-8" id="content-area">
         <div id="view-welcome" class="text-center py-12">
             <div class="text-8xl mb-4">✨</div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">v45 最终修复</h2>
-            <p class="text-slate-500 text-sm mb-8">极简音频内核 • 告别卡顿</p>
-            <button onclick="app.loadWord(0,0)" class="bg-sky-600 text-white px-8 py-3 rounded-full font-bold shadow-lg active:scale-95 transition">开始学习</button>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">v46 智能切片版</h2>
+            <p class="text-slate-500 text-sm mb-8">自动优化长句发音 • 解决安卓无声</p>
+            <button onclick="app.loadWord(0,0)" class="bg-fuchsia-600 text-white px-8 py-3 rounded-full font-bold shadow-lg active:scale-95 transition">开始学习</button>
         </div>
 
         <div id="view-study" class="hidden flex flex-col lg:flex-row gap-6 items-start">
@@ -117,11 +122,11 @@
                     <div class="card-mean" id="d-zh">...</div>
                     <div class="w-full h-px bg-slate-100 my-2"></div>
                     <div class="mnemonic-box">
-                        <div class="text-xs font-bold text-sky-600 uppercase mb-1">中文联想记忆</div>
-                        <div class="mnem-word text-2xl font-black text-sky-600" id="d-mnem">...</div>
+                        <div class="text-xs font-bold text-fuchsia-600 uppercase mb-1">中文联想记忆</div>
+                        <div class="mnem-word text-2xl font-black text-fuchsia-500" id="d-mnem">...</div>
                         <div class="mnem-desc text-sm text-slate-500" id="d-desc">...</div>
                     </div>
-                    <button onclick="app.speak(event)" class="mt-4 bg-sky-50 text-sky-600 border border-sky-200 px-6 py-3 rounded-full font-bold active:bg-sky-100 transition flex justify-center items-center gap-2">
+                    <button onclick="app.speakWord(event)" class="mt-4 bg-fuchsia-50 text-fuchsia-600 border border-fuchsia-200 px-6 py-3 rounded-full font-bold active:bg-fuchsia-100 transition flex justify-center items-center gap-2">
                         <span>🔊</span> 听单词发音
                     </button>
                 </div>
@@ -133,9 +138,9 @@
             </div>
 
             <div class="w-full lg:w-2/3">
-                <div class="bg-white border border-sky-100 p-4 rounded-xl shadow-sm mb-4">
-                    <h3 class="font-bold text-sky-800">实战场景拆解</h3>
-                    <p class="text-xs text-sky-500 opacity-80">点击下方按钮播放整句</p>
+                <div class="bg-white border border-fuchsia-100 p-4 rounded-xl shadow-sm mb-4">
+                    <h3 class="font-bold text-fuchsia-800">实战场景拆解</h3>
+                    <p class="text-xs text-fuchsia-500 opacity-80">点击播放整句 (智能切片)</p>
                 </div>
                 <div id="sentences-box" class="space-y-4"></div>
             </div>
@@ -144,33 +149,81 @@
 </main>
 
 <script>
-    // === 极简音频引擎：只用有道 ===
+    // === 6. 智能切片音频引擎 ===
     const AudioEngine = {
-        play(text) {
-            const player = document.getElementById('global-player');
-            this.showToast("⏳ 加载中...");
+        isPlaying: false,
+        audioQueue: [], // 播放队列
 
-            // 1. 预热：激活安卓音频通道
-            player.play().catch(() => {});
-
-            // 2. 有道词典接口 (支持泰语，速度快)
-            // audio: 文本内容
-            // le: 目标语言 (th = 泰语)
-            // 关键：不拆分句子，直接整句发给有道，这样最流畅
+        // 播放单个单词（直接调有道，无需切片）
+        playDirect(text) {
+            this.showToast("⏳ 单词加载...");
             const url = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&le=th`;
+            const audio = new Audio(url);
+            audio.play().then(() => this.showToast("🔊 播放单词")).catch(e => {
+                alert("播放被阻止，请重试");
+            });
+        },
+
+        // 播放句子（核心逻辑）
+        playSmart(bricks) {
+            if (this.isPlaying) return; // 防止重复点击
+            this.isPlaying = true;
+            this.showToast("⏳ 智能合成中...");
+
+            // 1. 智能切片算法
+            // 将积木(单词)合并成不超过30个字符的“大块”，减少请求次数，提高流畅度
+            const chunks = [];
+            let currentChunk = "";
             
-            player.src = url;
+            bricks.forEach(brick => {
+                if ((currentChunk + brick.t).length > 30) {
+                    // 如果加上这个词会超长，先把前面的存起来
+                    if (currentChunk) chunks.push(currentChunk);
+                    currentChunk = brick.t; // 新开一个块
+                } else {
+                    // 没超长，继续拼
+                    currentChunk += brick.t;
+                }
+            });
+            if (currentChunk) chunks.push(currentChunk); // 存入最后一个块
+
+            console.log("切片结果:", chunks);
+
+            // 2. 串行播放逻辑
+            let playIndex = 0;
             
-            player.oncanplay = () => {
-                this.showToast("🔊 播放中");
-                player.play().catch(e => {
-                    alert("请再次点击播放 (浏览器限制)");
+            const playNextChunk = () => {
+                if (playIndex >= chunks.length) {
+                    this.isPlaying = false;
+                    this.showToast("✅ 播放结束");
+                    return;
+                }
+
+                const text = chunks[playIndex];
+                const url = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&le=th`;
+                const audio = new Audio(url);
+
+                this.showToast(`🔊 播放中 (${playIndex + 1}/${chunks.length})`);
+                
+                audio.onended = () => {
+                    playIndex++;
+                    playNextChunk(); // 播完这一段，播下一段
+                };
+                
+                audio.onerror = () => {
+                    // 如果这一段出错，跳过，继续下一段，保证不卡死
+                    playIndex++;
+                    playNextChunk(); 
+                };
+
+                audio.play().catch(e => {
+                    this.isPlaying = false;
+                    alert("播放出错，请点击重试");
                 });
             };
-            
-            player.onerror = () => {
-                this.showToast("❌ 网络错误，无法连接有道");
-            };
+
+            // 开始播放第一段
+            playNextChunk();
         },
 
         timer: null,
@@ -341,20 +394,29 @@
             document.getElementById('d-mnem').innerText = data.m;
             document.getElementById('d-desc').innerText = data.desc;
             document.getElementById('sentences-box').innerHTML = data.sentences.map(s => {
-                const full = s.bricks.map(b=>b.t).join('');
-                return `<div class="bg-white p-4 rounded-xl shadow-sm border border-sky-100 mb-2">
+                // 不再传递复杂的对象，直接将积木内容传递给智能播放器
+                return `<div class="bg-white p-4 rounded-xl shadow-sm border border-fuchsia-100 mb-2">
                     <div class="flex justify-between items-center mb-3">
                         <div class="text-sm font-bold text-gray-500">🎧 ${s.zh}</div>
-                        <button onclick="AudioEngine.play('${full.replace(/'/g,"\\'")}')" class="text-xs font-bold text-sky-600 bg-sky-50 px-3 py-1 rounded-full border border-sky-200">🔊 播放</button>
+                        <button class="text-xs font-bold text-fuchsia-600 bg-fuchsia-50 px-3 py-1 rounded-full border border-fuchsia-200 btn-play-sentence">🔊 朗读</button>
                     </div>
-                    <div class="flex flex-wrap gap-2">${s.bricks.map(b=>`<div class="brick"><div class="brick-th">${b.t}</div><div class="brick-rd">${b.r}</div></div>`).join('')}</div>
+                    <div class="flex flex-wrap gap-2 brick-container">${s.bricks.map(b=>`<div class="brick"><div class="brick-th">${b.t}</div><div class="brick-rd">${b.r}</div></div>`).join('')}</div>
                 </div>`;
             }).join('');
+            
+            // 绑定事件：为了避免 HTML 属性转义噩梦，使用 JS 绑定
+            const buttons = document.querySelectorAll('.btn-play-sentence');
+            data.sentences.forEach((s, i) => {
+                if (buttons[i]) {
+                    buttons[i].onclick = () => AudioEngine.playSmart(s.bricks);
+                }
+            });
+
             if(window.innerWidth < 1024) { ui.closeSidebar(); window.scrollTo(0,0); }
         },
         next() { if(this.w < FULL_DATA[this.m].words.length - 1) this.loadWord(this.m, this.w + 1); else if(this.m < FULL_DATA.length - 1) this.loadWord(this.m + 1, 0); },
         prev() { if(this.w > 0) this.loadWord(this.m, this.w - 1); else if(this.m > 0) this.loadWord(this.m - 1, FULL_DATA[this.m-1].words.length - 1); },
-        speak(e) { e.stopPropagation(); AudioEngine.play(FULL_DATA[this.m].words[this.w].t); }
+        speakWord(e) { e.stopPropagation(); AudioEngine.playDirect(FULL_DATA[this.m].words[this.w].t); }
     };
 
     const ui = {
