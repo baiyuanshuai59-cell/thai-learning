@@ -4,31 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
-    <title>泰轻松 Pro v41 - 百度百科直连版</title>
+    <title>泰轻松 Pro v42 - 有道救命版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --primary: #2563eb; }
+        :root { --primary: #ea580c; /* 换个橙色运气好 */ }
         
-        /* 1. 基础设置 */
+        /* 基础设置 */
         html { height: auto; min-height: 100%; }
         body { 
             font-family: system-ui, -apple-system, sans-serif; 
-            background: #f8fafc; color: #334155;
+            background: #fff7ed; color: #334155;
             min-height: 100vh; 
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch;
             display: flex; flex-direction: column;
         }
 
-        /* 电脑端布局 */
         @media (min-width: 1024px) {
             body { height: 100vh; overflow: hidden; flex-direction: row; }
-            .sidebar { position: relative; transform: none; width: 300px; height: 100%; box-shadow: none; border-right: 1px solid #e2e8f0;}
+            .sidebar { position: relative; transform: none; width: 300px; height: 100%; box-shadow: none; border-right: 1px solid #fed7aa;}
             .main-content { height: 100%; overflow-y: auto; padding-bottom: 0; }
             .mobile-fab { display: none !important; }
         }
         
-        /* 手机端侧边栏 */
         .sidebar { 
             width: 85%; max-width: 320px; background: white; 
             display: flex; flex-direction: column; shrink-0; 
@@ -43,32 +41,30 @@
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1500; backdrop-filter: blur(2px); }
         .overlay.show { display: block; }
 
-        /* 内容区 */
         .main-content { flex: 1; width: 100%; padding-bottom: 160px; }
 
-        /* 组件样式 */
-        .nav-header { padding: 16px; background: #f1f5f9; font-weight: 900; color: #1e3a8a; font-size: 1rem; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 10; }
-        .nav-item { padding: 14px 20px; font-size: 15px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #f1f5f9; color: #475569; display: block; background: #fff; }
-        .nav-item:active { background: #f8fafc; }
-        .nav-item.active { background: #eff6ff; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
+        .nav-header { padding: 16px; background: #ffedd5; font-weight: 900; color: #c2410c; font-size: 1rem; border-bottom: 1px solid #fed7aa; position: sticky; top: 0; z-index: 10; }
+        .nav-item { padding: 14px 20px; font-size: 15px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #fff7ed; color: #475569; display: block; background: #fff; }
+        .nav-item:active { background: #fff7ed; }
+        .nav-item.active { background: #fff7ed; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
 
         .static-card {
-            background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 24px;
-            text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            background: white; border: 1px solid #fed7aa; border-radius: 24px; padding: 24px;
+            text-align: center; box-shadow: 0 4px 20px rgba(234, 88, 12, 0.05);
             width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 8px; margin: 0 auto;
         }
-        .card-thai { font-size: 3.5rem; font-weight: 900; color: #1e3a8a; line-height: 1.2; }
+        .card-thai { font-size: 3.5rem; font-weight: 900; color: #c2410c; line-height: 1.2; }
         .card-mean { font-size: 2rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
         .mnemonic-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px; padding: 12px; margin-top: 8px; }
         
         .brick { background: white; border: 1px solid #cbd5e1; border-radius: 10px; padding: 8px; text-align: center; flex: 1; min-width: 65px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .brick-th { color: #1e40af; font-weight: 800; font-size: 1rem; }
-        .brick-rd { color: #dc2626; font-size: 0.8rem; font-weight: bold; }
+        .brick-th { color: #c2410c; font-weight: 800; font-size: 1rem; }
+        .brick-rd { color: #64748b; font-size: 0.8rem; font-weight: bold; }
 
         .mobile-fab {
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-            background: #1e3a8a; color: white; padding: 12px 30px; border-radius: 50px;
-            font-weight: bold; box-shadow: 0 8px 20px rgba(30, 58, 138, 0.4);
+            background: #ea580c; color: white; padding: 12px 30px; border-radius: 50px;
+            font-weight: bold; box-shadow: 0 8px 20px rgba(234, 88, 12, 0.4);
             z-index: 1000; display: flex; items-center; gap: 8px; cursor: pointer;
             border: 1px solid rgba(255,255,255,0.2); white-space: nowrap; pointer-events: auto;
         }
@@ -88,9 +84,9 @@
 
 <div id="overlay" class="overlay" onclick="ui.toggleSidebar()"></div>
 <aside class="sidebar">
-    <div class="p-6 bg-blue-800 text-white shrink-0">
-        <h1 class="font-black text-xl tracking-tight uppercase">Thai Easy v41</h1>
-        <p class="text-xs text-blue-200 mt-1">百度百科直连版</p>
+    <div class="p-6 bg-orange-600 text-white shrink-0">
+        <h1 class="font-black text-xl tracking-tight uppercase">Thai Easy v42</h1>
+        <p class="text-xs text-orange-100 mt-1">有道+百度双通道</p>
     </div>
     <nav id="nav-target" class="flex-1 overflow-y-auto pb-10"></nav>
 </aside>
@@ -100,19 +96,19 @@
 </div>
 
 <main class="main-content">
-    <header class="p-4 bg-white border-b flex items-center justify-between sticky top-0 z-20 shadow-sm">
+    <header class="p-4 bg-white border-b border-orange-100 flex items-center justify-between sticky top-0 z-20 shadow-sm">
         <div class="flex items-center gap-3">
-            <button onclick="ui.toggleSidebar()" class="p-2 bg-slate-100 rounded-lg md:hidden">☰</button>
+            <button onclick="ui.toggleSidebar()" class="p-2 bg-orange-50 text-orange-600 rounded-lg md:hidden">☰</button>
             <span id="header-title" class="font-bold text-slate-700 truncate max-w-[200px]">请选择单词</span>
         </div>
     </header>
 
     <div class="p-4 lg:p-8" id="content-area">
         <div id="view-welcome" class="text-center py-12">
-            <div class="text-8xl mb-4">🐘</div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">泰轻松 Pro v41</h2>
-            <p class="text-slate-500 text-sm mb-8">线路：百度百科 (HTTPS)</p>
-            <button onclick="app.loadWord(0,0)" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg active:scale-95 transition">开始学习</button>
+            <div class="text-8xl mb-4">🙏</div>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">v42 救命版</h2>
+            <p class="text-slate-500 text-sm mb-8">已接入有道(Youdao)泰语源，国内直连。</p>
+            <button onclick="app.loadWord(0,0)" class="bg-orange-600 text-white px-8 py-3 rounded-full font-bold shadow-lg active:scale-95 transition">开始学习</button>
         </div>
 
         <div id="view-study" class="hidden flex flex-col lg:flex-row gap-6 items-start">
@@ -127,7 +123,7 @@
                         <div class="mnem-word text-2xl font-black text-orange-500" id="d-mnem">...</div>
                         <div class="mnem-desc text-sm text-slate-500" id="d-desc">...</div>
                     </div>
-                    <button onclick="app.speak(event)" class="mt-4 bg-blue-50 text-blue-600 border border-blue-100 px-6 py-3 rounded-full font-bold active:bg-blue-100 transition flex justify-center items-center gap-2">
+                    <button onclick="app.speak(event)" class="mt-4 bg-orange-50 text-orange-600 border border-orange-200 px-6 py-3 rounded-full font-bold active:bg-orange-100 transition flex justify-center items-center gap-2">
                         <span>🔊</span> 听单词发音
                     </button>
                 </div>
@@ -139,9 +135,9 @@
             </div>
 
             <div class="w-full lg:w-2/3">
-                <div class="bg-blue-600 text-white p-4 rounded-xl shadow-md mb-4">
-                    <h3 class="font-bold">实战场景拆解</h3>
-                    <p class="text-xs text-blue-100 opacity-80">点击下方喇叭图标播放</p>
+                <div class="bg-white border border-orange-100 p-4 rounded-xl shadow-sm mb-4">
+                    <h3 class="font-bold text-orange-800">实战场景拆解</h3>
+                    <p class="text-xs text-orange-400 opacity-80">点击下方按钮播放</p>
                 </div>
                 <div id="sentences-box" class="space-y-4"></div>
             </div>
@@ -150,39 +146,37 @@
 </main>
 
 <script>
+    // === 4. 终极音频引擎 (有道 Youdao + 百度 Web) ===
     const AudioEngine = {
         play(text) {
             const player = document.getElementById('global-player');
-            this.showToast("正在请求...");
+            this.showToast("正在请求音频...");
 
-            // 1. 预热通道 (兼容安卓)
+            // 预热：让安卓浏览器知道我们要放声音了
             player.play().catch(() => {});
 
-            // 2. 百度百科 TTS 接口
-            // 这是一个可以直接访问的接口，支持泰语 (lan=th)
-            // 必须使用 HTTPS 防止被浏览器拦截
-            const baiduUrl = `https://tts.baidu.com/text2audio?cuid=baike&lan=th&ctp=1&pdt=301&vol=9&rate=32&per=0&tex=${encodeURIComponent(text)}`;
+            // 线路A：有道词典 (国内最稳，支持泰语 le=th)
+            const youdaoUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&le=th`;
             
-            player.src = baiduUrl;
+            // 线路B：百度网页版 (需要 no-referrer 支持)
+            const baiduWebUrl = `https://fanyi.baidu.com/gettts?lan=th&text=${encodeURIComponent(text)}&spd=3&source=web`;
+
+            // 优先尝试有道
+            player.src = youdaoUrl;
             
             player.oncanplay = () => {
-                this.showToast("🔊 播放中");
+                this.showToast("🔊 播放中 (有道)");
                 player.play().catch(e => {
-                    alert("安卓系统限制：请手动点击播放\n" + e.message);
+                    alert("请再次点击播放按钮\n(安卓自动播放限制)");
                 });
             };
             
-            // 3. 错误侦测：如果连百度百科都连不上，那可能是网络屏蔽
-            player.onerror = (e) => {
-                const err = player.error;
-                let errMsg = "未知错误";
-                if (err.code === 1) errMsg = "取回过程被终止";
-                if (err.code === 2) errMsg = "网络错误 (被拦截)";
-                if (err.code === 3) errMsg = "解码错误 (不支持的格式)";
-                if (err.code === 4) errMsg = "不支持音频/资源无效";
-                
-                alert("播放失败: " + errMsg + "\n请尝试连接 WiFi 或使用移动数据");
-                this.showToast("❌ 播放失败");
+            // 如果有道挂了，自动切百度
+            player.onerror = () => {
+                console.log("Youdao failed, switching to Baidu Web...");
+                this.showToast("切换线路...");
+                player.src = baiduWebUrl;
+                player.play();
             };
         },
 
