@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
-    <title>泰轻松 Pro v42 - 有道救命版</title>
+    <title>泰轻松 Pro v43 - 智能分流版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --primary: #ea580c; /* 换个橙色运气好 */ }
+        :root { --primary: #059669; /* 换个绿色代表畅通 */ }
         
-        /* 基础设置 */
+        /* === 1. 滚动与基础设置 === */
         html { height: auto; min-height: 100%; }
         body { 
             font-family: system-ui, -apple-system, sans-serif; 
-            background: #fff7ed; color: #334155;
+            background: #f0fdf4; color: #334155;
             min-height: 100vh; 
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch;
@@ -22,7 +22,7 @@
 
         @media (min-width: 1024px) {
             body { height: 100vh; overflow: hidden; flex-direction: row; }
-            .sidebar { position: relative; transform: none; width: 300px; height: 100%; box-shadow: none; border-right: 1px solid #fed7aa;}
+            .sidebar { position: relative; transform: none; width: 300px; height: 100%; box-shadow: none; border-right: 1px solid #bbf7d0;}
             .main-content { height: 100%; overflow-y: auto; padding-bottom: 0; }
             .mobile-fab { display: none !important; }
         }
@@ -43,36 +43,37 @@
 
         .main-content { flex: 1; width: 100%; padding-bottom: 160px; }
 
-        .nav-header { padding: 16px; background: #ffedd5; font-weight: 900; color: #c2410c; font-size: 1rem; border-bottom: 1px solid #fed7aa; position: sticky; top: 0; z-index: 10; }
-        .nav-item { padding: 14px 20px; font-size: 15px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #fff7ed; color: #475569; display: block; background: #fff; }
-        .nav-item:active { background: #fff7ed; }
-        .nav-item.active { background: #fff7ed; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
+        /* 组件样式 */
+        .nav-header { padding: 16px; background: #dcfce7; font-weight: 900; color: #166534; font-size: 1rem; border-bottom: 1px solid #bbf7d0; position: sticky; top: 0; z-index: 10; }
+        .nav-item { padding: 14px 20px; font-size: 15px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #f0fdf4; color: #475569; display: block; background: #fff; }
+        .nav-item:active { background: #f0fdf4; }
+        .nav-item.active { background: #f0fdf4; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
 
         .static-card {
-            background: white; border: 1px solid #fed7aa; border-radius: 24px; padding: 24px;
-            text-align: center; box-shadow: 0 4px 20px rgba(234, 88, 12, 0.05);
+            background: white; border: 1px solid #bbf7d0; border-radius: 24px; padding: 24px;
+            text-align: center; box-shadow: 0 4px 20px rgba(5, 150, 105, 0.05);
             width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 8px; margin: 0 auto;
         }
-        .card-thai { font-size: 3.5rem; font-weight: 900; color: #c2410c; line-height: 1.2; }
+        .card-thai { font-size: 3.5rem; font-weight: 900; color: #166534; line-height: 1.2; }
         .card-mean { font-size: 2rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
-        .mnemonic-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px; padding: 12px; margin-top: 8px; }
+        .mnemonic-box { background: #ecfdf5; border: 1px solid #6ee7b7; border-radius: 12px; padding: 12px; margin-top: 8px; }
         
         .brick { background: white; border: 1px solid #cbd5e1; border-radius: 10px; padding: 8px; text-align: center; flex: 1; min-width: 65px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .brick-th { color: #c2410c; font-weight: 800; font-size: 1rem; }
-        .brick-rd { color: #64748b; font-size: 0.8rem; font-weight: bold; }
+        .brick-th { color: #15803d; font-weight: 800; font-size: 1rem; }
+        .brick-rd { color: #dc2626; font-size: 0.8rem; font-weight: bold; }
 
         .mobile-fab {
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-            background: #ea580c; color: white; padding: 12px 30px; border-radius: 50px;
-            font-weight: bold; box-shadow: 0 8px 20px rgba(234, 88, 12, 0.4);
+            background: #059669; color: white; padding: 12px 30px; border-radius: 50px;
+            font-weight: bold; box-shadow: 0 8px 20px rgba(5, 150, 105, 0.4);
             z-index: 1000; display: flex; items-center; gap: 8px; cursor: pointer;
             border: 1px solid rgba(255,255,255,0.2); white-space: nowrap; pointer-events: auto;
         }
 
         #toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.85); color: white; padding: 8px 20px;
-            border-radius: 50px; font-size: 13px; z-index: 3000;
+            background: rgba(0,0,0,0.85); color: white; padding: 10px 24px;
+            border-radius: 50px; font-size: 14px; z-index: 3000;
             display: none; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
     </style>
@@ -80,13 +81,13 @@
 <body>
 
 <div id="toast"></div>
-<audio id="global-player" style="display:none;" controls></audio>
+<audio id="global-player" style="display:none;" controls playsinline webkit-playsinline></audio>
 
 <div id="overlay" class="overlay" onclick="ui.toggleSidebar()"></div>
 <aside class="sidebar">
-    <div class="p-6 bg-orange-600 text-white shrink-0">
-        <h1 class="font-black text-xl tracking-tight uppercase">Thai Easy v42</h1>
-        <p class="text-xs text-orange-100 mt-1">有道+百度双通道</p>
+    <div class="p-6 bg-emerald-700 text-white shrink-0">
+        <h1 class="font-black text-xl tracking-tight uppercase">Thai Easy v43</h1>
+        <p class="text-xs text-emerald-100 mt-1">智能双通道音频</p>
     </div>
     <nav id="nav-target" class="flex-1 overflow-y-auto pb-10"></nav>
 </aside>
@@ -96,19 +97,19 @@
 </div>
 
 <main class="main-content">
-    <header class="p-4 bg-white border-b border-orange-100 flex items-center justify-between sticky top-0 z-20 shadow-sm">
+    <header class="p-4 bg-white border-b border-emerald-100 flex items-center justify-between sticky top-0 z-20 shadow-sm">
         <div class="flex items-center gap-3">
-            <button onclick="ui.toggleSidebar()" class="p-2 bg-orange-50 text-orange-600 rounded-lg md:hidden">☰</button>
+            <button onclick="ui.toggleSidebar()" class="p-2 bg-emerald-50 text-emerald-600 rounded-lg md:hidden">☰</button>
             <span id="header-title" class="font-bold text-slate-700 truncate max-w-[200px]">请选择单词</span>
         </div>
     </header>
 
     <div class="p-4 lg:p-8" id="content-area">
         <div id="view-welcome" class="text-center py-12">
-            <div class="text-8xl mb-4">🙏</div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">v42 救命版</h2>
-            <p class="text-slate-500 text-sm mb-8">已接入有道(Youdao)泰语源，国内直连。</p>
-            <button onclick="app.loadWord(0,0)" class="bg-orange-600 text-white px-8 py-3 rounded-full font-bold shadow-lg active:scale-95 transition">开始学习</button>
+            <div class="text-8xl mb-4">🎧</div>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">v43 智能音频就绪</h2>
+            <p class="text-slate-500 text-sm mb-8">单词用有道 · 句子用搜狗</p>
+            <button onclick="app.loadWord(0,0)" class="bg-emerald-600 text-white px-8 py-3 rounded-full font-bold shadow-lg active:scale-95 transition">开始学习</button>
         </div>
 
         <div id="view-study" class="hidden flex flex-col lg:flex-row gap-6 items-start">
@@ -119,11 +120,11 @@
                     <div class="card-mean" id="d-zh">...</div>
                     <div class="w-full h-px bg-slate-100 my-2"></div>
                     <div class="mnemonic-box">
-                        <div class="text-xs font-bold text-orange-600 uppercase mb-1">中文联想记忆</div>
-                        <div class="mnem-word text-2xl font-black text-orange-500" id="d-mnem">...</div>
+                        <div class="text-xs font-bold text-emerald-600 uppercase mb-1">中文联想记忆</div>
+                        <div class="mnem-word text-2xl font-black text-emerald-600" id="d-mnem">...</div>
                         <div class="mnem-desc text-sm text-slate-500" id="d-desc">...</div>
                     </div>
-                    <button onclick="app.speak(event)" class="mt-4 bg-orange-50 text-orange-600 border border-orange-200 px-6 py-3 rounded-full font-bold active:bg-orange-100 transition flex justify-center items-center gap-2">
+                    <button onclick="app.speak(event)" class="mt-4 bg-emerald-50 text-emerald-700 border border-emerald-200 px-6 py-3 rounded-full font-bold active:bg-emerald-100 transition flex justify-center items-center gap-2">
                         <span>🔊</span> 听单词发音
                     </button>
                 </div>
@@ -135,9 +136,9 @@
             </div>
 
             <div class="w-full lg:w-2/3">
-                <div class="bg-white border border-orange-100 p-4 rounded-xl shadow-sm mb-4">
-                    <h3 class="font-bold text-orange-800">实战场景拆解</h3>
-                    <p class="text-xs text-orange-400 opacity-80">点击下方按钮播放</p>
+                <div class="bg-white border border-emerald-100 p-4 rounded-xl shadow-sm mb-4">
+                    <h3 class="font-bold text-emerald-800">实战场景拆解</h3>
+                    <p class="text-xs text-emerald-500 opacity-80">点击播放整句</p>
                 </div>
                 <div id="sentences-box" class="space-y-4"></div>
             </div>
@@ -146,36 +147,62 @@
 </main>
 
 <script>
-    // === 4. 终极音频引擎 (有道 Youdao + 百度 Web) ===
+    // === 5. 智能音频分流引擎 ===
     const AudioEngine = {
+        // 当前尝试的模式 ('smart' | 'force_sogou' | 'force_youdao')
+        mode: 'smart', 
+        
         play(text) {
             const player = document.getElementById('global-player');
-            this.showToast("正在请求音频...");
+            this.showToast("⏳ 正在加载音频...");
 
-            // 预热：让安卓浏览器知道我们要放声音了
+            // 预热：让安卓浏览器知道我们要放声音
             player.play().catch(() => {});
 
-            // 线路A：有道词典 (国内最稳，支持泰语 le=th)
+            // 策略逻辑
+            // 1. 判断文本长度
+            // - 短文本 (<=30字符)：大概率是单词或短语，用有道 (Youdao)，速度快。
+            // - 长文本 (>30字符)：大概率是长句，用搜狗 (Sogou)，支持长文。
+            const isLongText = text.length > 30;
+            
+            // 构建两个源地址
             const youdaoUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(text)}&le=th`;
-            
-            // 线路B：百度网页版 (需要 no-referrer 支持)
-            const baiduWebUrl = `https://fanyi.baidu.com/gettts?lan=th&text=${encodeURIComponent(text)}&spd=3&source=web`;
+            const sogouUrl = `https://fanyi.sogou.com/reventondc/synthesis?text=${encodeURIComponent(text)}&lang=th&speed=1&from=translateweb`;
 
-            // 优先尝试有道
-            player.src = youdaoUrl;
+            // 决定优先用哪个
+            let targetUrl = isLongText ? sogouUrl : youdaoUrl;
+            let sourceName = isLongText ? "搜狗 (长句)" : "有道 (单词)";
+
+            console.log(`播放: "${text}", 长度: ${text.length}, 策略: ${sourceName}`);
+
+            player.src = targetUrl;
             
+            // 成功播放的回调
             player.oncanplay = () => {
-                this.showToast("🔊 播放中 (有道)");
+                this.showToast(`🔊 播放中 (${sourceName})`);
                 player.play().catch(e => {
-                    alert("请再次点击播放按钮\n(安卓自动播放限制)");
+                    alert("请点击屏幕以开始播放 (浏览器限制)");
                 });
             };
             
-            // 如果有道挂了，自动切百度
+            // 失败重试逻辑 (自动切换线路)
             player.onerror = () => {
-                console.log("Youdao failed, switching to Baidu Web...");
-                this.showToast("切换线路...");
-                player.src = baiduWebUrl;
+                console.log("Primary source failed, trying backup...");
+                
+                // 如果当前是有道失败了，切搜狗；如果是搜狗失败了，切有道
+                if (targetUrl === youdaoUrl) {
+                    this.showToast("🔄 切换至搜狗线路...");
+                    player.src = sogouUrl;
+                } else {
+                    this.showToast("🔄 切换至有道线路...");
+                    player.src = youdaoUrl;
+                }
+                
+                // 移除 onerror 防止死循环 (只试一次备用)
+                player.onerror = () => {
+                    this.showToast("❌ 音频服务暂时不可用");
+                };
+                
                 player.play();
             };
         },
@@ -186,7 +213,7 @@
             t.innerText = msg;
             t.style.display = 'block';
             if (this.timer) clearTimeout(this.timer);
-            this.timer = setTimeout(() => t.style.display = 'none', 1500);
+            this.timer = setTimeout(() => t.style.display = 'none', 2000);
         }
     };
 
@@ -349,10 +376,10 @@
             document.getElementById('d-desc').innerText = data.desc;
             document.getElementById('sentences-box').innerHTML = data.sentences.map(s => {
                 const full = s.bricks.map(b=>b.t).join('');
-                return `<div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-2">
+                return `<div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 mb-2">
                     <div class="flex justify-between items-center mb-3">
                         <div class="text-sm font-bold text-gray-500">🎧 ${s.zh}</div>
-                        <button onclick="AudioEngine.play('${full.replace(/'/g,"\\'")}')" class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">🔊 朗读</button>
+                        <button onclick="AudioEngine.play('${full.replace(/'/g,"\\'")}')" class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">🔊 朗读</button>
                     </div>
                     <div class="flex flex-wrap gap-2">${s.bricks.map(b=>`<div class="brick"><div class="brick-th">${b.t}</div><div class="brick-rd">${b.r}</div></div>`).join('')}</div>
                 </div>`;
