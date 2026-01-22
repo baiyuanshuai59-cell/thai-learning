@@ -3,148 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>泰轻松 Pro v48 - 完美修复版</title>
+    <title>泰轻松 Pro v49 - 最终修正版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --primary: #be123c; }
-        html { height: auto; min-height: 100%; }
-        body { 
+        
+        /* 全局重置，防止卡顿 */
+        html, body { 
+            height: 100%; margin: 0; padding: 0;
             font-family: system-ui, -apple-system, sans-serif; 
             background: #fff1f2; color: #334155;
-            min-height: 100vh; overflow-y: auto !important;
             -webkit-overflow-scrolling: touch;
-            display: flex; flex-direction: column;
+            overflow-x: hidden; /* 禁止左右晃动 */
         }
-        @media (min-width: 1024px) {
-            body { height: 100vh; overflow: hidden; flex-direction: row; }
-            .sidebar { position: relative; transform: none; width: 300px; height: 100%; box-shadow: none; border-right: 1px solid #fecdd3;}
-            .main-content { height: 100%; overflow-y: auto; padding-bottom: 0; }
-            .mobile-fab { display: none !important; }
-        }
+
+        body { display: flex; flex-direction: column; overflow-y: auto; }
+
+        /* === 侧边栏核心修复 (防挡手) === */
         .sidebar { 
             width: 85%; max-width: 320px; background: white; 
-            display: flex; flex-direction: column; shrink-0; 
+            display: flex; flex-direction: column; 
             position: fixed; top: 0; bottom: 0; left: 0; 
-            transform: translateX(-100%); 
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            z-index: 2000; box-shadow: 10px 0 25px -5px rgba(0,0,0,0.1);
-            height: 100%; 
+            z-index: 3000; box-shadow: 10px 0 25px -5px rgba(0,0,0,0.1);
+            
+            /* 关键修复：默认隐藏，不占位，不挡点击 */
+            transform: translateX(-100%);
+            visibility: hidden; 
+            transition: transform 0.3s ease, visibility 0s linear 0.3s;
         }
-        .sidebar.open { transform: translateX(0); }
         
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1500; backdrop-filter: blur(2px); }
+        .sidebar.open { 
+            transform: translateX(0); 
+            visibility: visible;
+            transition: transform 0.3s ease, visibility 0s linear 0s;
+        }
+
+        .overlay { 
+            display: none; position: fixed; inset: 0; 
+            background: rgba(0,0,0,0.6); z-index: 2500; 
+            backdrop-filter: blur(2px); 
+        }
         .overlay.show { display: block; }
-        
-        .main-content { flex: 1; width: 100%; padding-bottom: 160px; }
-        
-        .nav-header { padding: 16px; background: #ffe4e6; font-weight: 900; color: #9f1239; font-size: 1rem; border-bottom: 1px solid #fecdd3; position: sticky; top: 0; z-index: 10; }
-        .nav-item { padding: 14px 20px; font-size: 15px; cursor: pointer; border-left: 4px solid transparent; border-bottom: 1px solid #fff1f2; color: #475569; display: block; background: #fff; }
-        .nav-item.active { background: #fff1f2; color: var(--primary); border-left-color: var(--primary); font-weight: 700; }
-        
-        .static-card {
-            background: white; border: 1px solid #fecdd3; border-radius: 24px; padding: 24px;
-            text-align: center; box-shadow: 0 4px 20px rgba(190, 18, 60, 0.05);
-            width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 8px; margin: 0 auto;
+
+        /* 电脑端适配 */
+        @media (min-width: 1024px) {
+            body { padding-left: 300px; }
+            .sidebar { 
+                transform: none; visibility: visible; 
+                width: 300px; box-shadow: none; border-right: 1px solid #fecdd3;
+            }
+            .mobile-fab { display: none !important; }
+            .menu-btn { display: none; }
         }
-        .card-thai { font-size: 3.5rem; font-weight: 900; color: #9f1239; line-height: 1.2; }
-        .card-mean { font-size: 2rem; font-weight: 800; color: #0f172a; margin: 4px 0; }
-        .mnemonic-box { background: #fff1f2; border: 1px solid #fb7185; border-radius: 12px; padding: 12px; margin-top: 8px; }
-        .brick { background: white; border: 1px solid #cbd5e1; border-radius: 10px; padding: 8px; text-align: center; flex: 1; min-width: 65px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s; }
-        .brick-th { color: #9f1239; font-weight: 800; font-size: 1rem; }
-        .brick-rd { color: #dc2626; font-size: 0.8rem; font-weight: bold; }
+
+        /* 样式细节 */
+        .main-content { padding-bottom: 120px; flex: 1; }
         
+        .nav-header { padding: 16px; background: #ffe4e6; font-weight: 900; color: #9f1239; border-bottom: 1px solid #fecdd3; }
+        .nav-item { padding: 16px 20px; font-size: 15px; border-bottom: 1px solid #fff1f2; cursor: pointer; }
+        .nav-item.active { background: #fff1f2; color: var(--primary); font-weight: 700; border-left: 4px solid var(--primary); }
+
+        .static-card {
+            background: white; border: 1px solid #fecdd3; border-radius: 20px; padding: 20px;
+            text-align: center; box-shadow: 0 4px 15px rgba(190, 18, 60, 0.05); margin-bottom: 20px;
+        }
+        .brick { 
+            background: white; border: 1px solid #cbd5e1; border-radius: 8px; 
+            padding: 8px; text-align: center; flex: 1; min-width: 60px; margin: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        /* 悬浮按钮 */
         .mobile-fab {
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
             background: #be123c; color: white; padding: 12px 30px; border-radius: 50px;
             font-weight: bold; box-shadow: 0 8px 20px rgba(190, 18, 60, 0.4);
-            z-index: 1000; display: flex; items-center; gap: 8px; cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.2); white-space: nowrap; 
+            z-index: 2000; display: flex; items-center; gap: 8px; cursor: pointer;
         }
     </style>
+    <script>
+        window.onerror = function(msg, url, line) {
+            alert("发生错误: " + msg + "\n行号: " + line);
+            return false;
+        };
+    </script>
 </head>
 <body>
 
 <audio id="global-player" style="display:none;" controls></audio>
-<div id="overlay" class="overlay" onclick="ui.toggleSidebar()"></div>
 
-<aside class="sidebar">
+<div id="overlay" class="overlay" onclick="ui.closeSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
     <div class="p-6 bg-rose-700 text-white shrink-0">
-        <h1 class="font-black text-xl tracking-tight uppercase">Thai Easy v48</h1>
-        <p class="text-xs text-rose-200 mt-1">本地语音包版</p>
+        <h1 class="font-black text-xl">THAI EASY V49</h1>
+        <p class="text-xs text-rose-200 mt-1">本地高清语音包</p>
     </div>
     <nav id="nav-target" class="flex-1 overflow-y-auto pb-10"></nav>
 </aside>
 
-<div id="mobile-fab" class="mobile-fab" onclick="ui.toggleSidebar()">
+<div id="mobile-fab" class="mobile-fab" onclick="ui.openSidebar()">
     <span>📂</span> 打开目录
 </div>
 
-<main class="main-content">
-    <header class="p-4 bg-white border-b border-rose-100 flex items-center justify-between sticky top-0 z-20 shadow-sm">
+<div class="main-content">
+    <header class="p-4 bg-white border-b border-rose-100 flex items-center justify-between sticky top-0 z-10 shadow-sm">
         <div class="flex items-center gap-3">
-            <button onclick="ui.toggleSidebar()" class="p-2 bg-rose-50 text-rose-600 rounded-lg lg:hidden text-2xl">☰</button>
-            <span id="header-title" class="font-bold text-slate-700 truncate max-w-[200px]">请选择单词</span>
+            <button onclick="ui.openSidebar()" class="menu-btn p-2 bg-rose-50 text-rose-600 rounded-lg text-xl">☰</button>
+            <span id="header-title" class="font-bold text-slate-700 truncate">请选择单词</span>
         </div>
     </header>
 
     <div class="p-4 lg:p-8" id="content-area">
         <div id="view-welcome" class="text-center py-12">
-            <div class="text-8xl mb-4">📢</div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">v48 准备就绪</h2>
-            <p class="text-slate-500 text-sm mb-8">请确保音频文件已上传至 GitHub</p>
-            <button onclick="app.loadWord(0,0)" class="bg-rose-600 text-white px-8 py-3 rounded-full font-bold shadow-lg active:scale-95 transition">开始学习</button>
+            <div class="text-8xl mb-4">✅</div>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">系统正常</h2>
+            <p class="text-slate-500 text-sm mb-8">点击开始，如果没声音请检查 audio 文件夹</p>
+            <button onclick="app.loadWord(0,0)" class="bg-rose-600 text-white px-10 py-3 rounded-full font-bold shadow-lg active:scale-95">开始学习</button>
         </div>
 
-        <div id="view-study" class="hidden flex flex-col lg:flex-row gap-6 items-start">
-            <div class="w-full lg:w-1/3 flex flex-col items-center">
-                <div class="static-card">
-                    <div class="card-thai" id="d-th">...</div>
-                    <div class="card-roma text-slate-400 italic" id="d-rd">...</div>
-                    <div class="card-mean" id="d-zh">...</div>
-                    <div class="w-full h-px bg-slate-100 my-2"></div>
-                    <div class="mnemonic-box">
-                        <div class="text-xs font-bold text-rose-600 uppercase mb-1">中文联想记忆</div>
-                        <div class="mnem-word text-2xl font-black text-rose-500" id="d-mnem">...</div>
-                        <div class="mnem-desc text-sm text-slate-500" id="d-desc">...</div>
+        <div id="view-study" class="hidden">
+            <div class="flex flex-col lg:flex-row gap-6 items-start">
+                <div class="w-full lg:w-1/3 flex flex-col items-center">
+                    <div class="static-card w-full">
+                        <div class="card-thai text-5xl font-black text-rose-700 mb-2" id="d-th">...</div>
+                        <div class="text-lg text-slate-400 italic mb-2" id="d-rd">...</div>
+                        <div class="text-2xl font-bold text-slate-800 mb-4" id="d-zh">...</div>
+                        <div class="w-full h-px bg-rose-50 my-3"></div>
+                        <div class="bg-rose-50 p-3 rounded-xl border border-rose-100 w-full text-left">
+                            <div class="text-xs font-bold text-rose-500 uppercase mb-1">联想记忆</div>
+                            <div class="text-sm text-slate-600 leading-relaxed" id="d-desc">...</div>
+                        </div>
+                        <button onclick="app.speakWord()" class="w-full mt-4 bg-white border border-rose-200 text-rose-600 py-3 rounded-xl font-bold active:bg-rose-50 flex justify-center items-center gap-2">
+                            <span>🔊</span> 播放单词
+                        </button>
                     </div>
-                    <button onclick="app.speakWord()" class="mt-4 bg-rose-50 text-rose-600 border border-rose-200 px-6 py-3 rounded-full font-bold active:bg-rose-100 transition flex justify-center items-center gap-2">
-                        <span>🔊</span> 听单词发音
-                    </button>
+                    
+                    <div class="flex gap-3 w-full">
+                        <button onclick="app.prev()" class="flex-1 py-3 bg-white border border-slate-300 rounded-xl font-bold text-slate-600">上一个</button>
+                        <button onclick="app.next()" class="flex-1 py-3 bg-slate-800 text-white rounded-xl font-bold shadow-lg">下一个</button>
+                    </div>
                 </div>
 
-                <div class="flex gap-3 w-full max-w-sm mt-4">
-                    <button onclick="app.prev()" class="flex-1 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-500 active:bg-slate-50">上一个</button>
-                    <button onclick="app.next()" class="flex-1 py-3 bg-slate-900 text-white rounded-xl font-bold shadow-lg active:bg-slate-800">下一个</button>
+                <div class="w-full lg:w-2/3">
+                    <div class="bg-rose-600 text-white p-4 rounded-xl shadow-md mb-4">
+                        <h3 class="font-bold">实战场景</h3>
+                        <p class="text-xs text-rose-100 opacity-80">点击下方播放整句</p>
+                    </div>
+                    <div id="sentences-box" class="space-y-4"></div>
                 </div>
-            </div>
-
-            <div class="w-full lg:w-2/3">
-                <div class="bg-white border border-rose-100 p-4 rounded-xl shadow-sm mb-4">
-                    <h3 class="font-bold text-rose-800">实战场景拆解</h3>
-                    <p class="text-xs text-rose-500 opacity-80">点击下方按钮播放</p>
-                </div>
-                <div id="sentences-box" class="space-y-4"></div>
             </div>
         </div>
     </div>
-</main>
+</div>
 
 <script>
+    // === 播放引擎 (最简版) ===
     const AudioEngine = {
         playLocal(filename) {
             const player = document.getElementById('global-player');
-            // 假设音频文件在仓库根目录的 audio 文件夹下
-            // 例如：https://yourname.github.io/thai-learning/audio/c0-w0-main.mp3
-            player.src = `audio/${filename}`;
+            const path = `audio/${filename}`;
+            console.log("Playing:", path); // 调试日志
+            player.src = path;
             player.play().catch(e => {
-                console.error(e);
-                alert(`播放失败: ${filename}\n请检查是否已上传该音频文件到 GitHub！`);
+                alert(`无法播放音频: ${filename}\n请确认 GitHub 仓库中存在 audio 文件夹！\n错误信息: ${e.message}`);
             });
         }
     };
 
-    // === 完整数据 ===
-    // 务必保持这里的结构与生成脚本一致
+    // === 完整数据 (无注释，防止语法错误) ===
     const FULL_DATA = [
         {
             "name": "第一章：社交生存",
@@ -172,183 +199,25 @@
                 {"t": "ภาษาไทย", "r": "Pasa-Thai", "m": "帕-萨-泰", "mean": "泰语", "desc": "(怕)说(萨)瓦迪(泰)。", "sentences": [{"zh": "我学泰语", "bricks": [{"t": "เรียน", "r": "连"}, {"t": "ภาษาไทย", "r": "帕萨泰"}]}, {"zh": "泰语很难", "bricks": [{"t": "ภาษาไทย", "r": "帕萨泰"}, {"t": "ยาก", "r": "亚"}]}, {"zh": "泰语有趣", "bricks": [{"t": "ภาษาไทย", "r": "帕萨泰"}, {"t": "สนุก", "r": "萨努"}]},
                 {"t": "เพื่อน", "r": "Puean", "m": "盆", "mean": "朋友", "desc": "好(盆)友。", "sentences": [{"zh": "他是朋友", "bricks": [{"t": "เขา", "r": "考"}, {"t": "เป็น", "r": "奔"}, {"t": "เพื่อน", "r": "盆"}]}, {"zh": "好朋友", "bricks": [{"t": "เพื่อน", "r": "盆"}, {"t": "กัน", "r": "干"}]}, {"zh": "有朋友吗", "bricks": [{"t": "มี", "r": "米"}, {"t": "เพื่อน", "r": "盆"}, {"t": "ไหม", "r": "卖"}]}]}
             ]
-        }
-    },
-    {
-        "name": "第二章：疯狂购物",
-        "icon": "🛍️",
-        "words": [
-            {"t": "เท่าไหร่", "r": "Tao-rai", "m": "掏-莱", "mean": "多少钱", "desc": "(掏)钱出(莱)买东西。", "sentences": [{"zh": "这个多少钱？", "bricks": [{"t": "อันนี้", "r": "安尼"}, {"t": "เท่าไหร่", "r": "掏莱"}]}, {"zh": "一共多少钱？", "bricks": [{"t": "ทั้งหมด", "r": "当莫"}, {"t": "เท่าไหร่", "r": "掏莱"}]}, {"zh": "那件多少钱？", "bricks": [{"t": "ตัวนั้น", "r": "多难"}, {"t": "เท่าไหร่", "r": "掏莱"}]}]},
-            {"t": "แพง", "r": "Phaeng", "m": "配-昂", "mean": "贵", "desc": "价格不(配)我，(昂)贵。", "sentences": [{"zh": "太贵了！", "bricks": [{"t": "แพง", "r": "配昂"}, {"t": "มาก", "r": "马克"}]}, {"zh": "有点贵", "bricks": [{"t": "แพง", "r": "配昂"}, {"t": "หน่อย", "r": "诺"}]}, {"zh": "不贵", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "แพง", "r": "配昂"}]}]},
-            {"t": "ถูก", "r": "Took", "m": "土", "mean": "便宜", "desc": "(土)当然便宜。", "sentences": [{"zh": "很便宜", "bricks": [{"t": "ถูก", "r": "土"}, {"t": "มาก", "r": "马克"}]}, {"zh": "便宜点好吗", "bricks": [{"t": "ถูก", "r": "土"}, {"t": "หน่อย", "r": "诺"}]}, {"zh": "这也太便宜了", "bricks": [{"t": "ถูก", "r": "土"}, {"t": "จัง", "r": "将"}]}]},
-            {"t": "ลด", "r": "Lod", "m": "洛", "mean": "降价/打折", "desc": "价格(落)下来。", "sentences": [{"zh": "可以降价吗？", "bricks": [{"t": "ลด", "r": "洛"}, {"t": "ได้ไหม", "r": "代卖"}]}, {"zh": "有折扣吗？", "bricks": [{"t": "มี", "r": "米"}, {"t": "ส่วนลด", "r": "算洛"}]}, {"zh": "再少点", "bricks": [{"t": "ลด", "r": "洛"}, {"t": "อีก", "r": "一"}]}]},
-            {"t": "เอา", "r": "Ao", "m": "奥", "mean": "要", "desc": "(奥)运金牌我都要。", "sentences": [{"zh": "我要这个", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "อันนี้", "r": "安尼"}]}, {"zh": "要袋子", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "ถุง", "r": "桶"}]}, {"zh": "你要吗？", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "ไหม", "r": "卖"}]}]},
-            {"t": "ไม่เอา", "r": "Mai-ao", "m": "卖-奥", "mean": "不要", "desc": "(卖)给(奥)特曼，我不要。", "sentences": [{"zh": "我不要辣", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "เอา", "r": "奥"}, {"t": "เผ็ด", "r": "撇"}]}, {"zh": "不要袋子", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "เอา", "r": "奥"}, {"t": "ถุง", "r": "桶"}]}, {"zh": "不要这个", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "เอา", "r": "奥"}, {"t": "อันนี้", "r": "安尼"}]}]},
-            {"t": "อันนี้", "r": "An-nee", "m": "安-尼", "mean": "这个", "desc": "(安妮)喜欢这个。", "sentences": [{"zh": "这个多少钱", "bricks": [{"t": "อันนี้", "r": "安尼"}, {"t": "เท่าไหร่", "r": "套莱"}]}, {"zh": "喜欢这个", "bricks": [{"t": "ชอบ", "r": "戳"}, {"t": "อันนี้", "r": "安尼"}]}, {"zh": "我要这个", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "อันนี้", "r": "安尼"}]}]},
-            {"t": "สี", "r": "See", "m": "洗", "mean": "颜色", "desc": "把颜色(洗)掉。", "sentences": [{"zh": "什么颜色？", "bricks": [{"t": "สี", "r": "洗"}, {"t": "อะไร", "r": "阿莱"}]}, {"zh": "我要红色", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "สีแดง", "r": "洗灯"}]}, {"zh": "有黑色吗", "bricks": [{"t": "มี", "r": "米"}, {"t": "สีดำ", "r": "洗当"}]}]},
-            {"t": "ใหญ่", "r": "Yai", "m": "亚", "mean": "大", "desc": "(亚)洲很大。", "sentences": [{"zh": "太大了", "bricks": [{"t": "ใหญ่", "r": "亚"}, {"t": "ไป", "r": "拜"}]}, {"zh": "有大的吗", "bricks": [{"t": "มี", "r": "米"}, {"t": "ใหญ่", "r": "亚"}]}, {"zh": "要大杯", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "แก้ว", "r": "盖"}, {"t": "ใหญ่", "r": "亚"}]}]},
-            {"t": "เล็ก", "r": "Lek", "m": "来", "mean": "小", "desc": "(来)个小的。", "sentences": [{"zh": "太小了", "bricks": [{"t": "เล็ก", "r": "来"}, {"t": "ไป", "r": "拜"}]}, {"zh": "小一点", "bricks": [{"t": "เล็ก", "r": "来"}, {"t": "หน่อย", "r": "诺"}]}, {"zh": "要小份", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "เล็ก", "r": "来"}]}]},
-            {"t": "บาท", "r": "Baht", "m": "霸", "mean": "泰铢", "desc": "(霸)占所有泰铢。", "sentences": [{"zh": "100泰铢", "bricks": [{"t": "หนึ่งร้อย", "r": "能罗"}, {"t": "บาท", "r": "霸"}]}, {"zh": "几泰铢？", "bricks": [{"t": "กี่", "r": "几"}, {"t": "บาท", "r": "霸"}]}, {"zh": "50铢", "bricks": [{"t": "ห้าสิบ", "r": "哈习"}, {"t": "บาท", "r": "霸"}]}]},
-            {"t": "เงินทอน", "r": "Ngern-ton", "m": "恩-通", "mean": "找零", "desc": "感(恩)(通)融找钱。", "sentences": [{"zh": "不用找零", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "ต้อง", "r": "东"}, {"t": "ทอน", "r": "通"}]}, {"zh": "这是找零", "bricks": [{"t": "นี่", "r": "尼"}, {"t": "เงินทอน", "r": "恩通"}]}, {"zh": "找错了", "bricks": [{"t": "ทอน", "r": "通"}, {"t": "ผิด", "r": "皮"}]}]},
-            {"t": "บัตร", "r": "Bat", "m": "巴", "mean": "卡", "desc": "(巴)士卡。", "sentences": [{"zh": "收信用卡吗？", "bricks": [{"t": "รับ", "r": "拉"}, {"t": "บัตร", "r": "巴"}]}, {"zh": "刷卡", "bricks": [{"t": "รูด", "r": "录"}, {"t": "บัตร", "r": "巴"}]}, {"zh": "不收卡", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "รับ", "r": "拉"}, {"t": "บัตร", "r": "巴"}]}]},
-            {"t": "ถุง", "r": "Tung", "m": "桶", "mean": "袋子", "desc": "像(桶)一样的袋子。", "sentences": [{"zh": "要袋子吗？", "bricks": [{"t": "รับ", "r": "拉"}, {"t": "ถุง", "r": "桶"}]}, {"zh": "不要袋子", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "เอา", "r": "奥"}, {"t": "ถุง", "r": "桶"}]}, {"zh": "我有袋子", "bricks": [{"t": "มี", "r": "米"}, {"t": "ถุง", "r": "桶"}]}]},
-            {"t": "ลอง", "r": "Long", "m": "龙", "mean": "试", "desc": "(龙)去试试水。", "sentences": [{"zh": "可以试吗？", "bricks": [{"t": "ลอง", "r": "龙"}, {"t": "ได้ไหม", "r": "代卖"}]}, {"zh": "试穿", "bricks": [{"t": "ลอง", "r": "龙"}, {"t": "ใส่", "r": "赛"}]}, {"zh": "试试看", "bricks": [{"t": "ลอง", "r": "龙"}, {"t": "ดู", "r": "杜"}]}]},
-            {"t": "เสื้อ", "r": "Seua", "m": "色", "mean": "衣服", "desc": "衣服有很多颜(色)。", "sentences": [{"zh": "这件衣服", "bricks": [{"t": "เสื้อ", "r": "色"}, {"t": "ตัวนี้", "r": "多尼"}]}, {"zh": "买衣服", "bricks": [{"t": "ซื้อ", "r": "思"}, {"t": "เสื้อ", "r": "色"}]}, {"zh": "衣服很美", "bricks": [{"t": "เสื้อ", "r": "色"}, {"t": "สวย", "r": "帅"}]}]},
-            {"t": "ร้าน", "r": "Ran", "m": "兰", "mean": "店", "desc": "(兰)花开在店里。", "sentences": [{"zh": "饭店", "bricks": [{"t": "ร้าน", "r": "兰"}, {"t": "อาหาร", "r": "阿含"}]}, {"zh": "咖啡店", "bricks": [{"t": "ร้าน", "r": "兰"}, {"t": "กาแฟ", "r": "嘎飞"}]}, {"zh": "关店了", "bricks": [{"t": "ร้าน", "r": "兰"}, {"t": "ปิด", "r": "闭"}]}]},
-            {"t": "ตลาด", "r": "Talad", "m": "达-拉", "mean": "市场", "desc": "到(达)了就(拉)货，是市场。", "sentences": [{"zh": "去市场", "bricks": [{"t": "ไป", "r": "拜"}, {"t": "ตลาด", "r": "达拉"}]}, {"zh": "夜市", "bricks": [{"t": "ตลาด", "r": "达拉"}, {"t": "นัด", "r": "纳"}]}, {"zh": "水上市场", "bricks": [{"t": "ตลาด", "r": "达拉"}, {"t": "น้ำ", "r": "南"}]}]},
-            {"t": "หนึ่ง", "r": "Nueng", "m": "能", "mean": "1", "desc": "第一名很有(能)耐。", "sentences": [{"zh": "一个", "bricks": [{"t": "หนึ่ง", "r": "能"}, {"t": "อัน", "r": "安"}]}, {"zh": "一公斤", "bricks": [{"t": "หนึ่ง", "r": "能"}, {"t": "กิโล", "r": "吉罗"}]}, {"zh": "一次", "bricks": [{"t": "หนึ่ง", "r": "能"}, {"t": "ครั้ง", "r": "康"}]}]},
-            {"t": "สอง", "r": "Song", "m": "送", "mean": "2", "desc": "买一(送)一变两个。", "sentences": [{"zh": "两个人", "bricks": [{"t": "สอง", "r": "送"}, {"t": "คน", "r": "坤"}]}, {"zh": "两个", "bricks": [{"t": "สอง", "r": "送"}, {"t": "อัน", "r": "安"}]}, {"zh": "两点", "bricks": [{"t": "สอง", "r": "送"}, {"t": "โมง", "r": "蒙"}]}]}
-        ]
-    },
-    {
-        "name": "第三章：吃喝玩乐",
-        "icon": "🍜",
-        "words": [
-            {"t": "กิน", "r": "Kin", "m": "金", "mean": "吃", "desc": "吞(金)子吃。", "sentences": [{"zh": "吃饭", "bricks": [{"t": "กิน", "r": "金"}, {"t": "ข้าว", "r": "靠"}]}, {"zh": "好吃吗", "bricks": [{"t": "อร่อย", "r": "阿莱"}, {"t": "ไหม", "r": "卖"}]}, {"zh": "吃饱了", "bricks": [{"t": "อิ่ม", "r": "饮"}, {"t": "แล้ว", "r": "聊"}]}]},
-            {"t": "น้ำ", "r": "Nam", "m": "南", "mean": "水", "desc": "(南)水北调。", "sentences": [{"zh": "喝水", "bricks": [{"t": "ดื่ม", "r": "饮"}, {"t": "น้ำ", "r": "南"}]}, {"zh": "冰水", "bricks": [{"t": "น้ำ", "r": "南"}, {"t": "แข็ง", "r": "肯"}]}, {"zh": "要水", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "น้ำ", "r": "南"}]}]},
-            {"t": "หิว", "r": "Hiu", "m": "休", "mean": "饿", "desc": "饿得要(休)克。", "sentences": [{"zh": "饿了吗", "bricks": [{"t": "หิว", "r": "休"}, {"t": "ไหม", "r": "卖"}]}, {"zh": "很饿", "bricks": [{"t": "หิว", "r": "休"}, {"t": "มาก", "r": "马克"}]}, {"zh": "不饿", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "หิว", "r": "休"}]}]},
-            {"t": "เผ็ด", "r": "Pet", "m": "撇", "mean": "辣", "desc": "辣得(撇)嘴。", "sentences": [{"zh": "不辣", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "เผ็ด", "r": "撇"}]}, {"zh": "一点点辣", "bricks": [{"t": "เผ็ด", "r": "撇"}, {"t": "นิดหน่อย", "r": "尼诺"}]}, {"zh": "不要辣", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "เอา", "r": "奥"}, {"t": "เผ็ด", "r": "撇"}]}]},
-            {"t": "อร่อย", "r": "A-roi", "m": "阿-莱", "mean": "好吃", "desc": "(阿)姨(来)做饭真好吃。", "sentences": [{"zh": "很好吃", "bricks": [{"t": "อร่อย", "r": "阿莱"}, {"t": "มาก", "r": "马克"}]}, {"zh": "不好吃", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "อร่อย", "r": "阿莱"}]}, {"zh": "真的好吃", "bricks": [{"t": "อร่อย", "r": "阿莱"}, {"t": "จริง", "r": "晶"}]}]},
-            {"t": "เช็คบิล", "r": "Check-bin", "m": "且-并", "mean": "结账", "desc": "英文check bill谐音。", "sentences": [{"zh": "结账", "bricks": [{"t": "เช็คบิล", "r": "且并"}]}, {"zh": "这里结账", "bricks": [{"t": "เก็บเงิน", "r": "盖恩"}]}, {"zh": "一共多少", "bricks": [{"t": "เท่าไหร่", "r": "套莱"}]}]},
-            {"t": "ไก่", "r": "Gai", "m": "盖", "mean": "鸡", "desc": "(盖)饭吃鸡。", "sentences": [{"zh": "海南鸡饭", "bricks": [{"t": "ข้าว", "r": "靠"}, {"t": "มัน", "r": "满"}, {"t": "ไก่", "r": "盖"}]}, {"zh": "炸鸡", "bricks": [{"t": "ไก่", "r": "盖"}, {"t": "ทอด", "r": "透"}]}, {"zh": "不吃鸡", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "กิน", "r": "金"}, {"t": "ไก่", "r": "盖"}]}]},
-            {"t": "หมู", "r": "Moo", "m": "目", "mean": "猪", "desc": "猪(目)寸光。", "sentences": [{"zh": "猪肉", "bricks": [{"t": "เนื้อ", "r": "努"}, {"t": "หมู", "r": "目"}]}, {"zh": "烤猪肉", "bricks": [{"t": "หมู", "r": "目"}, {"t": "ปิ้ง", "r": "冰"}]}, {"zh": "猪脚饭", "bricks": [{"t": "ขา", "r": "卡"}, {"t": "หมู", "r": "目"}]}]},
-            {"t": "กุ้ง", "r": "Goong", "m": "公", "mean": "虾", "desc": "老(公)爱吃虾。", "sentences": [{"zh": "冬阴功", "bricks": [{"t": "ต้ม", "r": "冬"}, {"t": "ยำ", "r": "阴"}, {"t": "กุ้ง", "r": "公"}]}, {"zh": "烤虾", "bricks": [{"t": "กุ้ง", "r": "公"}, {"t": "เผา", "r": "袍"}]}, {"zh": "吃虾", "bricks": [{"t": "กิน", "r": "金"}, {"t": "กุ้ง", "r": "公"}]}]},
-            {"t": "ปลา", "r": "Pla", "m": "扒", "mean": "鱼", "desc": "(扒)开鱼皮。", "sentences": [{"zh": "炸鱼", "bricks": [{"t": "ปลา", "r": "扒"}, {"t": "ทอด", "r": "透"}]}, {"zh": "柠檬鱼", "bricks": [{"t": "ปลา", "r": "扒"}, {"t": "นึ่ง", "r": "能"}, {"t": "มะนาว", "r": "马闹"}]}, {"zh": "不吃鱼", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "กิน", "r": "金"}, {"t": "ปลา", "r": "扒"}]}]},
-            {"t": "ผัก", "r": "Pak", "m": "帕", "mean": "蔬菜", "desc": "手(帕)包菜。", "sentences": [{"zh": "不吃菜", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "กิน", "r": "金"}, {"t": "ผัก", "r": "帕"}]}, {"zh": "炒菜", "bricks": [{"t": "ผัด", "r": "帕"}, {"t": "ผัก", "r": "帕"}]}, {"zh": "要蔬菜", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "ผัก", "r": "帕"}]}]},
-            {"t": "ข้าว", "r": "Khao", "m": "靠", "mean": "饭", "desc": "(靠)这碗饭活着。", "sentences": [{"zh": "吃饭", "bricks": [{"t": "กิน", "r": "金"}, {"t": "ข้าว", "r": "靠"}]}, {"zh": "炒饭", "bricks": [{"t": "ข้าว", "r": "靠"}, {"t": "ผัด", "r": "帕"}]}, {"zh": "白饭", "bricks": [{"t": "ข้าว", "r": "靠"}, {"t": "สวย", "r": "帅"}]}]},
-            {"t": "ก๋วยเตี๋ยว", "r": "Kuay-tiao", "m": "桂-条", "mean": "面条", "desc": "(桂)林米(条)。", "sentences": [{"zh": "吃面", "bricks": [{"t": "กิน", "r": "金"}, {"t": "ก๋วยเตี๋ยว", "r": "桂条"}]}, {"zh": "要面条", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "ก๋วยเตี๋ยว", "r": "桂条"}]}, {"zh": "面条汤", "bricks": [{"t": "น้ำ", "r": "南"}]}]},
-            {"t": "ผลไม้", "r": "Pon-la-mai", "m": "蓬-拉-卖", "mean": "水果", "desc": "(蓬)松的(拉)去(卖)。", "sentences": [{"zh": "吃水果", "bricks": [{"t": "กิน", "r": "金"}, {"t": "ผลไม้", "r": "蓬拉卖"}]}, {"zh": "买水果", "bricks": [{"t": "ซื้อ", "r": "思"}, {"t": "ผลไม้", "r": "蓬拉卖"}]}, {"zh": "水果摊", "bricks": [{"t": "ร้าน", "r": "兰"}, {"t": "ผลไม้", "r": "蓬拉卖"}]}]},
-            {"t": "ทุเรียน", "r": "Tu-rian", "m": "吐-连", "mean": "榴莲", "desc": "好吃到(吐)还(连)着吃。", "sentences": [{"zh": "吃榴莲", "bricks": [{"t": "กิน", "r": "金"}, {"t": "ทุเรียน", "r": "吐连"}]}, {"zh": "榴莲很贵", "bricks": [{"t": "ทุเรียน", "r": "吐连"}, {"t": "แพง", "r": "配昂"}]}, {"zh": "喜欢榴莲", "bricks": [{"t": "ชอบ", "r": "戳"}, {"t": "ทุเรียน", "r": "吐连"}]}]},
-            {"t": "มะม่วง", "r": "Ma-muang", "m": "马-忙", "mean": "芒果", "desc": "(马)很(忙)在吃芒果。", "sentences": [{"zh": "芒果糯米饭", "bricks": [{"t": "ข้าวเหนียว", "r": "靠鸟"}, {"t": "มะม่วง", "r": "马忙"}]}, {"zh": "甜芒果", "bricks": [{"t": "มะม่วง", "r": "马忙"}, {"t": "หวาน", "r": "晚"}]}, {"zh": "酸芒果", "bricks": [{"t": "มะม่วง", "r": "马忙"}, {"t": "เปรี้ยว", "r": "彪"}]}]},
-            {"t": "หวาน", "r": "Wan", "m": "晚", "mean": "甜", "desc": "(晚)上吃甜食。", "sentences": [{"zh": "太甜了", "bricks": [{"t": "หวาน", "r": "晚"}, {"t": "มาก", "r": "马克"}]}, {"zh": "少糖", "bricks": [{"t": "หวาน", "r": "晚"}, {"t": "น้อย", "r": "诺"}]}, {"zh": "不甜", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "หวาน", "r": "晚"}]}]},
-            {"t": "เปรี้ยว", "r": "Preaw", "m": "彪", "mean": "酸", "desc": "酸得(彪)悍。", "sentences": [{"zh": "酸辣", "bricks": [{"t": "เปรี้ยว", "r": "彪"}, {"t": "เผ็ด", "r": "撇"}]}, {"zh": "有点酸", "bricks": [{"t": "เปรี้ยว", "r": "彪"}, {"t": "หน่อย", "r": "诺"}]}, {"zh": "不酸", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "เปรี้ยว", "r": "彪"}]}]},
-            {"t": "เค็ม", "r": "Kem", "m": "坑", "mean": "咸", "desc": "咸死(坑)人。", "sentences": [{"zh": "太咸", "bricks": [{"t": "เค็ม", "r": "坑"}, {"t": "ไป", "r": "拜"}]}, {"zh": "不要咸", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "เค็ม", "r": "坑"}]}, {"zh": "很咸", "bricks": [{"t": "เค็ม", "r": "坑"}, {"t": "มาก", "r": "马克"}]}]},
-            {"t": "ใส่", "r": "Sai", "m": "赛", "mean": "放/加/穿", "desc": "比(赛)加料。", "sentences": [{"zh": "不加糖", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "ใส่", "r": "赛"}, {"t": "น้ำตาล", "r": "南丹"}]}, {"zh": "加袋子", "bricks": [{"t": "ใส่", "r": "赛"}, {"t": "ถุง", "r": "桶"}]}, {"zh": "打包", "bricks": [{"t": "ใส่", "r": "赛"}, {"t": "ห่อ", "r": "吼"}]}]}
-        ]
-    },
-    {
-        "name": "第四章：出行交通",
-        "icon": "🚕",
-        "words": [
-            {"t": "ไป", "r": "Pai", "m": "拜", "mean": "去", "desc": "(拜)拜走人。", "sentences": [{"zh": "去哪里", "bricks": [{"t": "ไป", "r": "拜"}, {"t": "ไหน", "r": "乃"}]}, {"zh": "去机场", "bricks": [{"t": "ไป", "r": "拜"}, {"t": "สนามบิน", "r": "萨南宾"}]}, {"zh": "直走", "bricks": [{"t": "ตรง", "r": "懂"}, {"t": "ไป", "r": "拜"}]}]},
-            {"t": "กลับ", "r": "Klab", "m": "格拉", "mean": "回", "desc": "格格(拉)我回去。", "sentences": [{"zh": "回家", "bricks": [{"t": "กลับ", "r": "格拉"}, {"t": "บ้าน", "r": "办"}]}, {"zh": "回酒店", "bricks": [{"t": "กลับ", "r": "格拉"}, {"t": "โรงแรม", "r": "龙莲"}]}, {"zh": "回去", "bricks": [{"t": "กลับ", "r": "格拉"}, {"t": "ไป", "r": "拜"}]}]},
-            {"t": "รถ", "r": "Rot", "m": "洛", "mean": "车", "desc": "车(落)下。", "sentences": [{"zh": "坐车", "bricks": [{"t": "นั่ง", "r": "囊"}, {"t": "รถ", "r": "洛"}]}, {"zh": "堵车", "bricks": [{"t": "รถ", "r": "洛"}, {"t": "ติด", "r": "底"}]}, {"zh": "叫车", "bricks": [{"t": "เรียก", "r": "列"}, {"t": "รถ", "r": "洛"}]}]},
-            {"t": "แท็กซี่", "r": "Taxi", "m": "太洗", "mean": "出租车", "desc": "Taxi谐音。", "sentences": [{"zh": "叫出租", "bricks": [{"t": "เรียก", "r": "列"}, {"t": "แท็กซี่", "r": "太洗"}]}, {"zh": "坐出租", "bricks": [{"t": "นั่ง", "r": "囊"}, {"t": "แท็กซี่", "r": "太洗"}]}, {"zh": "出租车", "bricks": [{"t": "รถ", "r": "洛"}, {"t": "แท็กซี่", "r": "太洗"}]}]},
-            {"t": "สนามบิน", "r": "Sa-nam-bin", "m": "萨南宾", "mean": "机场", "desc": "(萨)达姆(南)边(兵)营。", "sentences": [{"zh": "去机场", "bricks": [{"t": "ไป", "r": "拜"}, {"t": "สนามบิน", "r": "萨南宾"}]}, {"zh": "在机场", "bricks": [{"t": "อยู่", "r": "有"}, {"t": "สนามบิน", "r": "萨南宾"}]}, {"zh": "机场很远", "bricks": [{"t": "สนามบิน", "r": "萨南宾"}, {"t": "ไกล", "r": "改"}]}]},
-            {"t": "โรงแรม", "r": "Rong-raem", "m": "龙莲", "mean": "酒店", "desc": "(龙)眼(莲)子酒店。", "sentences": [{"zh": "回酒店", "bricks": [{"t": "กลับ", "r": "格拉"}, {"t": "โรงแรม", "r": "龙莲"}]}, {"zh": "酒店在哪里", "bricks": [{"t": "โรงแรม", "r": "龙莲"}, {"t": "ที่ไหน", "r": "提奶"}]}, {"zh": "订酒店", "bricks": [{"t": "จอง", "r": "中"}, {"t": "โรงแรม", "r": "龙莲"}]}]},
-            {"t": "ตรงไป", "r": "Trong-pai", "m": "懂拜", "mean": "直走", "desc": "(懂)了就(拜)拜直走。", "sentences": [{"zh": "请直走", "bricks": [{"t": "เชิญ", "r": "陈"}, {"t": "ตรงไป", "r": "懂拜"}]}, {"zh": "一直走", "bricks": [{"t": "เดิน", "r": "等"}, {"t": "ตรงไป", "r": "懂拜"}]}, {"zh": "直走就到了", "bricks": [{"t": "ตรงไป", "r": "懂拜"}, {"t": "ก็", "r": "果"}, {"t": "ถึง", "r": "腾"}]}]},
-            {"t": "เลี้ยว", "r": "Leo", "m": "聊", "mean": "转弯", "desc": "(聊)天转弯。", "sentences": [{"zh": "左转", "bricks": [{"t": "เลี้ยว", "r": "聊"}, {"t": "ซ้าย", "r": "塞"}]}, {"zh": "右转", "bricks": [{"t": "เลี้ยว", "r": "聊"}, {"t": "ขวา", "r": "跨"}]}, {"zh": "前面转弯", "bricks": [{"t": "ข้างหน้า", "r": "康纳"}, {"t": "เลี้ยว", "r": "聊"}]}]},
-            {"t": "ซ้าย", "r": "Sai", "m": "塞", "mean": "左", "desc": "(塞)车在左边。", "sentences": [{"zh": "左边", "bricks": [{"t": "ทาง", "r": "汤"}, {"t": "ซ้าย", "r": "塞"}]}, {"zh": "靠左", "bricks": [{"t": "ชิด", "r": "七"}, {"t": "ซ้าย", "r": "塞"}]}, {"zh": "左转", "bricks": [{"t": "เลี้ยว", "r": "聊"}, {"t": "ซ้าย", "r": "塞"}]}]},
-            {"t": "ขวา", "r": "Kwa", "m": "跨", "mean": "右", "desc": "(跨)步向右。", "sentences": [{"zh": "右边", "bricks": [{"t": "ทาง", "r": "汤"}, {"t": "ขวา", "r": "跨"}]}, {"zh": "靠右", "bricks": [{"t": "ชิด", "r": "七"}, {"t": "ขวา", "r": "跨"}]}, {"zh": "右转", "bricks": [{"t": "เลี้ยว", "r": "聊"}, {"t": "ขวา", "r": "跨"}]}]},
-            {"t": "จอด", "r": "Jod", "m": "周", "mean": "停", "desc": "一(周)停一次。", "sentences": [{"zh": "停车", "bricks": [{"t": "จอด", "r": "周"}, {"t": "รถ", "r": "洛"}]}, {"zh": "在这里停", "bricks": [{"t": "จอด", "r": "周"}, {"t": "ที่นี่", "r": "提尼"}]}, {"zh": "不要停", "bricks": [{"t": "ห้าม", "r": "汉"}, {"t": "จอด", "r": "周"}]}]},
-            {"t": "ถึง", "r": "Teung", "m": "腾", "mean": "到", "desc": "(腾)空到达。", "sentences": [{"zh": "到了", "bricks": [{"t": "ถึง", "r": "腾"}, {"t": "แล้ว", "r": "聊"}]}, {"zh": "还没到", "bricks": [{"t": "ยัง", "r": "羊"}, {"t": "ไม่", "r": "卖"}, {"t": "ถึง", "r": "腾"}]}, {"zh": "到了吗", "bricks": [{"t": "ถึง", "r": "腾"}, {"t": "ไหม", "r": "卖"}]}]},
-            {"t": "ไกล", "r": "Klai", "m": "改", "mean": "远", "desc": "要(改)路因为远。", "sentences": [{"zh": "很远", "bricks": [{"t": "ไกล", "r": "改"}, {"t": "มาก", "r": "马克"}]}, {"zh": "不远", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "ไกล", "r": "改"}]}, {"zh": "远吗", "bricks": [{"t": "ไกล", "r": "改"}, {"t": "ไหม", "r": "卖"}]}]},
-            {"t": "ใกล้", "r": "Klai", "m": "盖", "mean": "近", "desc": "(盖)被子很近。", "sentences": [{"zh": "很近", "bricks": [{"t": "ใกล้", "r": "盖"}, {"t": "มาก", "r": "马克"}]}, {"zh": "在这附近", "bricks": [{"t": "อยู่", "r": "有"}, {"t": "ใกล้ๆ", "r": "盖盖"}]}, {"zh": "近吗", "bricks": [{"t": "ใกล้", "r": "盖"}, {"t": "ไหม", "r": "卖"}]}]},
-            {"t": "เร็ว", "r": "Reo", "m": "溜", "mean": "快", "desc": "灰溜(溜)很快。", "sentences": [{"zh": "快点", "bricks": [{"t": "เร็วๆ", "r": "溜溜"}]}, {"zh": "开快点", "bricks": [{"t": "ขับ", "r": "卡"}, {"t": "เร็ว", "r": "溜"}]}, {"zh": "太快了", "bricks": [{"t": "เร็ว", "r": "溜"}, {"t": "ไป", "r": "拜"}]}]},
-            {"t": "ช้า", "r": "Cha", "m": "叉", "mean": "慢", "desc": "差(叉)不多慢点。", "sentences": [{"zh": "慢点", "bricks": [{"t": "ช้าๆ", "r": "叉叉"}]}, {"zh": "开慢点", "bricks": [{"t": "ขับ", "r": "卡"}, {"t": "ช้าๆ", "r": "叉叉"}]}, {"zh": "太慢了", "bricks": [{"t": "ช้า", "r": "叉"}, {"t": "ไป", "r": "拜"}]}]},
-            {"t": "ทาง", "r": "Tang", "m": "汤", "mean": "路/方向", "desc": "喝(汤)迷了路。", "sentences": [{"zh": "迷路", "bricks": [{"t": "หลง", "r": "龙"}, {"t": "ทาง", "r": "汤"}]}, {"zh": "这边", "bricks": [{"t": "ทาง", "r": "汤"}, {"t": "นี้", "r": "尼"}]}, {"zh": "哪边", "bricks": [{"t": "ทาง", "r": "汤"}, {"t": "ไหน", "r": "乃"}]}]},
-            {"t": "รอ", "r": "Ror", "m": "罗", "mean": "等", "desc": "(罗)志祥在等。", "sentences": [{"zh": "等一下", "bricks": [{"t": "รอ", "r": "罗"}, {"t": "แป๊บ", "r": ":bep"}]}, {"zh": "等我", "bricks": [{"t": "รอ", "r": "罗"}, {"t": "ฉัน", "r": "蝉"}]}, {"zh": "不用等", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "ต้อง", "r": "东"}, {"t": "รอ", "r": "罗"}]}]},
-            {"t": "ขับ", "r": "Kub", "m": "卡", "mean": "开(车)", "desc": "(卡)车也是开。", "sentences": [{"zh": "开车", "bricks": [{"t": "ขับ", "r": "卡"}, {"t": "รถ", "r": "洛"}]}, {"zh": "司机", "bricks": [{"t": "คน", "r": "坤"}, {"t": "ขับ", "r": "卡"}, {"t": "รถ", "r": "洛"}]}, {"zh": "会开车吗", "bricks": [{"t": "ขับ", "r": "卡"}, {"t": "เป็น", "r": "奔"}, {"t": "ไหม", "r": "卖"}]}]},
-            {"t": "ที่นี่", "r": "Tee-nee", "m": "提尼", "mean": "这里", "desc": "(提)着(泥)土在这里。", "sentences": [{"zh": "在这里", "bricks": [{"t": "อยู่", "r": "有"}, {"t": "ที่นี่", "r": "提尼"}]}, {"zh": "这里有", "bricks": [{"t": "ที่นี่", "r": "提尼"}, {"t": "มี", "r": "米"}]}, {"zh": "来这里", "bricks": [{"t": "มา", "r": "马"}, {"t": "ที่นี่", "r": "提尼"}]}]}
-        ]
-    },
-    {
-        "name": "第五章：生活与爱",
-        "icon": "❤️",
-        "words": [
-            {"t": "สวย", "r": "Suay", "m": "帅", "mean": "漂亮", "desc": "泰国(帅)就是美。", "sentences": [{"zh": "你真漂亮", "bricks": [{"t": "คุณ", "r": "坤"}, {"t": "สวย", "r": "帅"}, {"t": "มาก", "r": "马克"}]}, {"zh": "美女", "bricks": [{"t": "คน", "r": "坤"}, {"t": "สวย", "r": "帅"}]}, {"zh": "这里很美", "bricks": [{"t": "ที่นี่", "r": "提尼"}, {"t": "สวย", "r": "帅"}]}]},
-            {"t": "หล่อ", "r": "Lor", "m": "罗", "mean": "帅气", "desc": "(罗)汉很帅。", "sentences": [{"zh": "很帅", "bricks": [{"t": "หล่อ", "r": "罗"}, {"t": "มาก", "r": "马克"}]}, {"zh": "帅哥", "bricks": [{"t": "คน", "r": "坤"}, {"t": "หล่อ", "r": "罗"}]}, {"zh": "帅吗", "bricks": [{"t": "หล่อ", "r": "罗"}, {"t": "ไหม", "r": "卖"}]}]},
-            {"t": "น่ารัก", "r": "Na-rak", "m": "纳拉克", "mean": "可爱", "desc": "(纳)米(拉克)丝。", "sentences": [{"zh": "很可爱", "bricks": [{"t": "น่ารัก", "r": "纳拉克"}, {"t": "จัง", "r": "将"}]}, {"zh": "你很可爱", "bricks": [{"t": "คุณ", "r": "坤"}, {"t": "น่ารัก", "r": "纳拉克"}]}, {"zh": "不可爱", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "น่ารัก", "r": "纳拉克"}]}]},
-            {"t": "รัก", "r": "Rak", "m": "拉克", "mean": "爱", "desc": "爱穿(拉克)丝。", "sentences": [{"zh": "我爱你", "bricks": [{"t": "ฉัน", "r": "蝉"}, {"t": "รัก", "r": "拉克"}, {"t": "คุณ", "r": "坤"}]}, {"zh": "爱泰国", "bricks": [{"t": "รัก", "r": "拉克"}, {"t": "เมืองไทย", "r": "蒙泰"}]}, {"zh": "相爱", "bricks": [{"t": "รัก", "r": "拉克"}, {"t": "กัน", "r": "干"}]}]},
-            {"t": "ชอบ", "r": "Chob", "m": "戳", "mean": "喜欢", "desc": "(戳)一下代表喜欢。", "sentences": [{"zh": "我喜欢你", "bricks": [{"t": "ฉัน", "r": "蝉"}, {"t": "ชอบ", "r": "戳"}, {"t": "คุณ", "r": "坤"}]}, {"zh": "不喜欢", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "ชอบ", "r": "戳"}]}, {"zh": "喜欢吗", "bricks": [{"t": "ชอบ", "r": "戳"}, {"t": "ไหม", "r": "卖"}]}]},
-            {"t": "คิดถึง", "r": "Kit-teung", "m": "其疼", "mean": "想念", "desc": "(其)实心(疼)因想念。", "sentences": [{"zh": "我想你", "bricks": [{"t": "คิดถึง", "r": "其疼"}, {"t": "คุณ", "r": "坤"}]}, {"zh": "很想", "bricks": [{"t": "คิดถึง", "r": "其疼"}, {"t": "มาก", "r": "马克"}]}, {"zh": "想家", "bricks": [{"t": "คิดถึง", "r": "其疼"}, {"t": "บ้าน", "r": "办"}]}]},
-            {"t": "แฟน", "r": "Faen", "m": "粉", "mean": "对象/粉丝", "desc": "男朋(粉)友。", "sentences": [{"zh": "有对象了吗", "bricks": [{"t": "มี", "r": "米"}, {"t": "แฟน", "r": "粉"}, {"t": "ยัง", "r": "羊"}]}, {"zh": "我的男/女友", "bricks": [{"t": "แฟน", "r": "粉"}, {"t": "ฉัน", "r": "蝉"}]}, {"zh": "没有对象", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "มี", "r": "米"}, {"t": "แฟน", "r": "粉"}]}]},
-            {"t": "สนุก", "r": "Sa-nook", "m": "萨努", "mean": "有趣/好玩", "desc": "(萨努)比很好玩。", "sentences": [{"zh": "好玩吗", "bricks": [{"t": "สนุก", "r": "萨努"}, {"t": "ไหม", "r": "卖"}]}, {"zh": "很好玩", "bricks": [{"t": "สนุก", "r": "萨努"}, {"t": "มาก", "r": "马克"}]}, {"zh": "不有趣", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "สนุก", "r": "萨努"}]}]},
-            {"t": "ดี", "r": "Dee", "m": "迪", "mean": "好", "desc": "(迪)士尼很好。", "sentences": [{"zh": "很好", "bricks": [{"t": "ดี", "r": "迪"}, {"t": "มาก", "r": "马克"}]}, {"zh": "心情好", "bricks": [{"t": "อารมณ์", "r": "阿隆"}, {"t": "ดี", "r": "迪"}]}, {"zh": "好吗", "bricks": [{"t": "ดี", "r": "迪"}, {"t": "ไหม", "r": "卖"}]}]},
-            {"t": "ร้อน", "r": "Ron", "m": "龙", "mean": "热", "desc": "(龙)喷火很热。", "sentences": [{"zh": "很热", "bricks": [{"t": "ร้อน", "r": "龙"}, {"t": "มาก", "r": "马克"}]}, {"zh": "天气热", "bricks": [{"t": "อากาศ", "r": "阿嘎"}, {"t": "ร้อน", "r": "龙"}]}, {"zh": "不热", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "ร้อน", "r": "龙"}]}]},
-            {"t": "เย็น", "r": "Yen", "m": "烟", "mean": "凉", "desc": "抽(烟)乘凉。", "sentences": [{"zh": "冰咖啡", "bricks": [{"t": "กาแฟ", "r": "嘎飞"}, {"t": "เย็น", "r": "烟"}]}, {"zh": "凉快", "bricks": [{"t": "เย็น", "r": "烟"}, {"t": "สบาย", "r": "萨拜"}]}, {"zh": "心凉(冷静)", "bricks": [{"t": "ใจ", "r": "斋"}, {"t": "เย็น", "r": "烟"}]}]},
-            {"t": "หนาว", "r": "Nao", "m": "闹", "mean": "冷", "desc": "冷得热闹。", "sentences": [{"zh": "很冷", "bricks": [{"t": "หนาว", "r": "闹"}, {"t": "มาก", "r": "马克"}]}, {"zh": "怕冷", "bricks": [{"t": "กลัว", "r": "格鲁"}, {"t": "หนาว", "r": "闹"}]}, {"zh": "冷吗", "bricks": [{"t": "หนาว", "r": "闹"}, {"t": "ไหม", "r": "卖"}]}]},
-            {"t": "หมา", "r": "Ma", "m": "马", "mean": "狗", "desc": "指鹿为(马)其实是狗。", "sentences": [{"zh": "可爱的狗", "bricks": [{"t": "หมา", "r": "马"}, {"t": "น่ารัก", "r": "纳拉克"}]}, {"zh": "养狗", "bricks": [{"t": "เลี้ยง", "r": "连"}, {"t": "หมา", "r": "马"}]}, {"zh": "狗叫", "bricks": [{"t": "หมา", "r": "马"}, {"t": "เห่า", "r": "浩"}]}]},
-            {"t": "แมว", "r": "Maew", "m": "苗", "mean": "猫", "desc": "猫叫(苗)苗。", "sentences": [{"zh": "喜欢猫", "bricks": [{"t": "ชอบ", "r": "戳"}, {"t": "แมว", "r": "苗"}]}, {"zh": "猫睡觉", "bricks": [{"t": "แมว", "r": "苗"}, {"t": "นอน", "r": "囊"}]}, {"zh": "喂猫", "bricks": [{"t": "เลี้ยง", "r": "连"}, {"t": "แมว", "r": "苗"}]}]},
-            {"t": "หมอ", "r": "Mor", "m": "魔", "mean": "医生", "desc": "(魔)法医生。", "sentences": [{"zh": "去看医生", "bricks": [{"t": "ไป", "r": "拜"}, {"t": "หา", "r": "哈"}, {"t": "หมอ", "r": "魔"}]}, {"zh": "医生好", "bricks": [{"t": "สวัสดี", "r": "萨哇低"}, {"t": "หมอ", "r": "魔"}]}, {"zh": "牙医", "bricks": [{"t": "หมอ", "r": "魔"}, {"t": "ฟัน", "r": "凡"}]}]},
-            {"t": "ยา", "r": "Ya", "m": "亚", "mean": "药", "desc": "(亚)洲的药。", "sentences": [{"zh": "吃药", "bricks": [{"t": "กิน", "r": "金"}, {"t": "ยา", "r": "亚"}]}, {"zh": "买药", "bricks": [{"t": "ซื้อ", "r": "思"}, {"t": "ยา", "r": "亚"}]}, {"zh": "药店", "bricks": [{"t": "ร้าน", "r": "兰"}, {"t": "ยา", "r": "亚"}]}]},
-            {"t": "ป่วย", "r": "Puay", "m": "不", "mean": "生病", "desc": "(不)舒服生病。", "sentences": [{"zh": "我生病了", "bricks": [{"t": "ฉัน", "r": "蝉"}, {"t": "ป่วย", "r": "不"}]}, {"zh": "不生病", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "ป่วย", "r": "不"}]}, {"zh": "病好了", "bricks": [{"t": "หาย", "r": "海"}, {"t": "ป่วย", "r": "不"}]}]},
-            {"t": "เจ็บ", "r": "Jeb", "m": "接", "mean": "疼", "desc": "(接)骨很疼。", "sentences": [{"zh": "疼吗", "bricks": [{"t": "เจ็บ", "r": "接"}, {"t": "ไหม", "r": "卖"}]}, {"zh": "很疼", "bricks": [{"t": "เจ็บ", "r": "接"}, {"t": "มาก", "r": "马克"}]}, {"zh": "心疼", "bricks": [{"t": "เจ็บ", "r": "接"}, {"t": "ใจ", "r": "斋"}]}]},
-            {"t": "สุขสันต์", "r": "Suk-san", "m": "苏散", "mean": "快乐", "desc": "(苏)州(散)步快乐。", "sentences": [{"zh": "生日快乐", "bricks": [{"t": "สุขสันต์", "r": "苏散"}, {"t": "วันเกิด", "r": "湾葛"}]}, {"zh": "新年快乐", "bricks": [{"t": "สวัสดี", "r": "萨哇低"}, {"t": "ปีใหม่", "r": "比卖"}]}, {"zh": "快乐", "bricks": [{"t": "มี", "r": "米"}, {"t": "ความสุข", "r": "宽苏"}]}]},
-            {"t": "คนไทย", "r": "Khon-Thai", "m": "坤泰", "mean": "泰国人", "desc": "谢广(坤)是(泰)国人。", "sentences": [{"zh": "我是泰国人", "bricks": [{"t": "ฉัน", "r": "蝉"}, {"t": "เป็น", "r": "奔"}, {"t": "คนไทย", "r": "坤泰"}]}, {"zh": "你是泰国人吗", "bricks": [{"t": "เป็น", "r": "奔"}, {"t": "คนไทย", "r": "坤泰"}, {"t": "ไหม", "r": "卖"}]}, {"zh": "爱泰国人", "bricks": [{"t": "รัก", "r": "拉克"}, {"t": "คนไทย", "r": "坤泰"}]}]}
-        ]
-    }
-]
-
-const app = {
-    m: 0, w: 0,
-    renderNav() {
-        const nav = document.getElementById('nav-target');
-        let html = "";
-        FULL_DATA.forEach((module, mi) => {
-            html += `<div class="nav-header"><span>${module.icon}</span> <span>${module.name}</span></div>`;
-            module.words.forEach((word, wi) => {
-                const active = (this.m === mi && this.w === wi) ? 'active' : '';
-                html += `<div class="nav-item ${active}" onclick="app.loadWord(${mi}, ${wi})">
-                            ${wi + 1}. ${word.mean} (${word.t})
-                         </div>`;
-            });
-        });
-        nav.innerHTML = html;
-    },
-    loadWord(mi, wi) {
-        this.m = mi; this.w = wi;
-        this.renderNav();
-        document.getElementById('view-welcome').classList.add('hidden');
-        document.getElementById('view-study').classList.remove('hidden');
-        
-        // 数据容错
-        if (!FULL_DATA[mi] || !FULL_DATA[mi].words[wi]) return;
-
-        const data = FULL_DATA[mi].words[wi];
-        document.getElementById('header-title').innerText = `${FULL_DATA[mi].name} > ${data.mean}`;
-        document.getElementById('d-th').innerText = data.t;
-        document.getElementById('d-rd').innerText = data.r;
-        document.getElementById('d-zh').innerText = data.mean;
-        document.getElementById('d-mnem').innerText = data.m;
-        document.getElementById('d-desc').innerText = data.desc;
-
-        document.getElementById('sentences-box').innerHTML = data.sentences.map((s, sentenceIdx) => {
-            // 文件名规则：c{章}-w{词}-s{句}.mp3
-            const filename = `c${mi}-w${wi}-s${sentenceIdx}.mp3`;
-            
-            return `<div class="bg-white p-4 rounded-xl shadow-sm border border-rose-100 mb-2">
-                <div class="flex justify-between items-center mb-3">
-                    <div class="text-sm font-bold text-gray-500">🎧 ${s.zh}</div>
-                    <button onclick="AudioEngine.playLocal('${filename}')" class="text-xs font-bold text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">🔊 播放</button>
-                </div>
-                <div class="flex flex-wrap gap-2">${s.bricks.map(b=>`<div class="brick"><div class="brick-th">${b.t}</div><div class="brick-rd">${b.r}</div></div>`).join('')}</div>
-            </div>`;
-        }).join('');
-        
-        if(window.innerWidth < 1024) { ui.closeSidebar(); window.scrollTo(0,0); }
-    },
-    next() { 
-        if(this.w < FULL_DATA[this.m].words.length - 1) this.loadWord(this.m, this.w + 1); 
-        else if(this.m < FULL_DATA.length - 1) this.loadWord(this.m + 1, 0); 
-    },
-    prev() { 
-        if(this.w > 0) this.loadWord(this.m, this.w - 1); 
-        else if(this.m > 0) this.loadWord(this.m - 1, FULL_DATA[this.m-1].words.length - 1); 
-    },
-    speakWord() { 
-        // 单词文件名规则：c{章}-w{词}-main.mp3
-        const filename = `c${this.m}-w${this.w}-main.mp3`;
-        AudioEngine.playLocal(filename);
-    }
-};
-
-const ui = {
-    toggleSidebar() { document.querySelector('.sidebar').classList.toggle('open'); document.querySelector('.overlay').classList.toggle('show'); },
-    closeSidebar() { document.querySelector('.sidebar').classList.remove('open'); document.querySelector('.overlay').classList.remove('show'); }
-};
-
-app.renderNav();
-</script>
-</body>
-</html>
+        },
+        {
+            "name": "第二章：疯狂购物",
+            "icon": "🛍️",
+            "words": [
+                {"t": "เท่าไหร่", "r": "Tao-rai", "m": "掏-莱", "mean": "多少钱", "desc": "(掏)钱出(莱)买东西。", "sentences": [{"zh": "这个多少钱？", "bricks": [{"t": "อันนี้", "r": "安尼"}, {"t": "เท่าไหร่", "r": "掏莱"}]}, {"zh": "一共多少钱？", "bricks": [{"t": "ทั้งหมด", "r": "当莫"}, {"t": "เท่าไหร่", "r": "掏莱"}]}, {"zh": "那件多少钱？", "bricks": [{"t": "ตัวนั้น", "r": "多难"}, {"t": "เท่าไหร่", "r": "掏莱"}]}]},
+                {"t": "แพง", "r": "Phaeng", "m": "配-昂", "mean": "贵", "desc": "价格不(配)我，(昂)贵。", "sentences": [{"zh": "太贵了！", "bricks": [{"t": "แพง", "r": "配昂"}, {"t": "มาก", "r": "马克"}]}, {"zh": "有点贵", "bricks": [{"t": "แพง", "r": "配昂"}, {"t": "หน่อย", "r": "诺"}]}, {"zh": "不贵", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "แพง", "r": "配昂"}]}]},
+                {"t": "ถูก", "r": "Took", "m": "土", "mean": "便宜", "desc": "(土)当然便宜。", "sentences": [{"zh": "很便宜", "bricks": [{"t": "ถูก", "r": "土"}, {"t": "มาก", "r": "马克"}]}, {"zh": "便宜点好吗", "bricks": [{"t": "ถูก", "r": "土"}, {"t": "หน่อย", "r": "诺"}]}, {"zh": "这也太便宜了", "bricks": [{"t": "ถูก", "r": "土"}, {"t": "จัง", "r": "将"}]}]},
+                {"t": "ลด", "r": "Lod", "m": "洛", "mean": "降价/打折", "desc": "价格(落)下来。", "sentences": [{"zh": "可以降价吗？", "bricks": [{"t": "ลด", "r": "洛"}, {"t": "ได้ไหม", "r": "代卖"}]}, {"zh": "有折扣吗？", "bricks": [{"t": "มี", "r": "米"}, {"t": "ส่วนลด", "r": "算洛"}]}, {"zh": "再少点", "bricks": [{"t": "ลด", "r": "洛"}, {"t": "อีก", "r": "一"}]}]},
+                {"t": "เอา", "r": "Ao", "m": "奥", "mean": "要", "desc": "(奥)运金牌我都要。", "sentences": [{"zh": "我要这个", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "อันนี้", "r": "安尼"}]}, {"zh": "要袋子", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "ถุง", "r": "桶"}]}, {"zh": "你要吗？", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "ไหม", "r": "卖"}]}]},
+                {"t": "ไม่เอา", "r": "Mai-ao", "m": "卖-奥", "mean": "不要", "desc": "(卖)给(奥)特曼，我不要。", "sentences": [{"zh": "我不要辣", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "เอา", "r": "奥"}, {"t": "เผ็ด", "r": "撇"}]}, {"zh": "不要袋子", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "เอา", "r": "奥"}, {"t": "ถุง", "r": "桶"}]}, {"zh": "不要这个", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "เอา", "r": "奥"}, {"t": "อันนี้", "r": "安尼"}]}]},
+                {"t": "อันนี้", "r": "An-nee", "m": "安-尼", "mean": "这个", "desc": "(安妮)喜欢这个。", "sentences": [{"zh": "这个多少钱", "bricks": [{"t": "อันนี้", "r": "安尼"}, {"t": "เท่าไหร่", "r": "套莱"}]}, {"zh": "喜欢这个", "bricks": [{"t": "ชอบ", "r": "戳"}, {"t": "อันนี้", "r": "安尼"}]}, {"zh": "我要这个", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "อันนี้", "r": "安尼"}]}]},
+                {"t": "สี", "r": "See", "m": "洗", "mean": "颜色", "desc": "把颜色(洗)掉。", "sentences": [{"zh": "什么颜色？", "bricks": [{"t": "สี", "r": "洗"}, {"t": "อะไร", "r": "阿莱"}]}, {"zh": "我要红色", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "สีแดง", "r": "洗灯"}]}, {"zh": "有黑色吗", "bricks": [{"t": "มี", "r": "米"}, {"t": "สีดำ", "r": "洗当"}]}]},
+                {"t": "ใหญ่", "r": "Yai", "m": "亚", "mean": "大", "desc": "(亚)洲很大。", "sentences": [{"zh": "太大了", "bricks": [{"t": "ใหญ่", "r": "亚"}, {"t": "ไป", "r": "拜"}]}, {"zh": "有大的吗", "bricks": [{"t": "มี", "r": "米"}, {"t": "ใหญ่", "r": "亚"}]}, {"zh": "要大杯", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "แก้ว", "r": "盖"}, {"t": "ใหญ่", "r": "亚"}]}]},
+                {"t": "เล็ก", "r": "Lek", "m": "来", "mean": "小", "desc": "(来)个小的。", "sentences": [{"zh": "太小了", "bricks": [{"t": "เล็ก", "r": "来"}, {"t": "ไป", "r": "拜"}]}, {"zh": "小一点", "bricks": [{"t": "เล็ก", "r": "来"}, {"t": "หน่อย", "r": "诺"}]}, {"zh": "要小份", "bricks": [{"t": "เอา", "r": "奥"}, {"t": "เล็ก", "r": "来"}]}]},
+                {"t": "บาท", "r": "Baht", "m": "霸", "mean": "泰铢", "desc": "(霸)占所有泰铢。", "sentences": [{"zh": "100泰铢", "bricks": [{"t": "หนึ่งร้อย", "r": "能罗"}, {"t": "บาท", "r": "霸"}]}, {"zh": "几泰铢？", "bricks": [{"t": "กี่", "r": "几"}, {"t": "บาท", "r": "霸"}]}, {"zh": "50铢", "bricks": [{"t": "ห้าสิบ", "r": "哈习"}, {"t": "บาท", "r": "霸"}]}]},
+                {"t": "เงินทอน", "r": "Ngern-ton", "m": "恩-通", "mean": "找零", "desc": "感(恩)(通)融找钱。", "sentences": [{"zh": "不用找零", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "ต้อง", "r": "东"}, {"t": "ทอน", "r": "通"}]}, {"zh": "这是找零", "bricks": [{"t": "นี่", "r": "尼"}, {"t": "เงินทอน", "r": "恩通"}]}, {"zh": "找错了", "bricks": [{"t": "ทอน", "r": "通"}, {"t": "ผิด", "r": "皮"}]}]},
+                {"t": "บัตร", "r": "Bat", "m": "巴", "mean": "卡", "desc": "(巴)士卡。", "sentences": [{"zh": "收信用卡吗？", "bricks": [{"t": "รับ", "r": "拉"}, {"t": "บัตร", "r": "巴"}]}, {"zh": "刷卡", "bricks": [{"t": "รูด", "r": "录"}, {"t": "บัตร", "r": "巴"}]}, {"zh": "不收卡", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "รับ", "r": "拉"}, {"t": "บัตร", "r": "巴"}]}]},
+                {"t": "ถุง", "r": "Tung", "m": "桶", "mean": "袋子", "desc": "像(桶)一样的袋子。", "sentences": [{"zh": "要袋子吗？", "bricks": [{"t": "รับ", "r": "拉"}, {"t": "ถุง", "r": "桶"}]}, {"zh": "不要袋子", "bricks": [{"t": "ไม่", "r": "卖"}, {"t": "เอา", "r": "奥"}, {"t": "ถุง", "r": "桶"}]}, {"zh": "我有袋子", "bricks": [{"t": "มี", "r": "米"}, {"t": "ถุง", "r": "桶"}]}]},
+                {"t": "ลอง", "r": "Long", "m": "龙", "mean": "试", "desc": "(龙)去试试水。", "sentences": [{"zh": "可以试吗？", "bricks": [{"t": "ลอง", "r": "龙"}, {"t": "ได้ไหม", "r": "代卖"}]}, {"zh": "试穿", "bricks": [{"t": "ลอง", "r": "龙"}, {"t": "ใส่", "r": "赛"}]}, {"zh": "试试看", "bricks": [{"t": "ลอง", "r": "龙"}, {"t": "ดู", "r": "杜"}]}]},
+                {"t": "เสื้อ", "r": "Seua", "m": "色", "mean": "衣服", "desc": "衣服有很多颜(色)。", "sentences": [{"zh": "这件衣服", "bricks": [{"t": "เสื้อ", "r": "色"}, {"t": "ตัวนี้", "r": "多尼"}]}, {"zh": "买衣服", "bricks": [{"t": "ซื้อ", "r": "思"}, {"t": "เสื้อ", "r": "色"}]}, {"zh": "衣服很美", "bricks": [{"t": "เสื้อ", "r": "色"}, {"t": "สวย", "r": "帅"}]}]},
+                {"t": "ร้าน", "r": "Ran", "m": "兰",
